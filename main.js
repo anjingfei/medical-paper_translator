@@ -314,37 +314,117 @@
       }
 
       .polish-dark body {
-        --ink: #edf4f3;
-        --muted: #aeb9c8;
-        --line: rgba(202, 220, 230, 0.18);
-        --panel: #14202c;
+        --ink: #f2f7f7;
+        --muted: #c7d2df;
+        --line: rgba(206, 225, 235, 0.24);
+        --panel: #172433;
         --wash: #0f1722;
-        --accent-soft: rgba(16, 144, 131, 0.16);
-        background: linear-gradient(135deg, #101923 0%, #172633 54%, #201d18 100%);
+        --accent: #38c9b9;
+        --accent-strong: #91f1e5;
+        --accent-soft: rgba(56, 201, 185, 0.18);
+        background: linear-gradient(135deg, #0e1722 0%, #152537 56%, #1b1b24 100%);
+        color: var(--ink);
+      }
+
+      .polish-dark body::before {
+        background-image:
+          linear-gradient(rgba(117, 231, 218, 0.075) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(117, 231, 218, 0.055) 1px, transparent 1px);
       }
 
       .polish-dark .toolbar,
+      .polish-dark .panel,
+      .polish-dark .stat,
       .polish-dark .success-toast,
       .polish-dark input,
       .polish-dark select,
       .polish-dark textarea,
       .polish-dark button,
       .polish-dark .term,
+      .polish-dark .search-results,
+      .polish-dark .search-result,
       .polish-dark .history-item {
-        background: rgba(20, 32, 44, 0.94);
+        background: rgba(23, 36, 51, 0.96);
         color: var(--ink);
+        border-color: rgba(206, 225, 235, 0.22);
+      }
+
+      .polish-dark .toolbar {
+        background: rgba(17, 30, 43, 0.94);
+      }
+
+      .polish-dark .panel-header {
+        background: rgba(20, 34, 48, 0.98);
       }
 
       .polish-dark .feedback,
       .polish-dark .article-body {
-        background: rgba(18, 28, 39, 0.9);
+        background:
+          linear-gradient(90deg, rgba(56, 201, 185, 0.12), transparent 30%),
+          rgba(14, 25, 38, 0.96);
       }
 
+      .polish-dark .topbar h1,
+      .polish-dark h1,
       .polish-dark .section-title,
       .polish-dark .translation,
+      .polish-dark .english-text,
       .polish-dark .panel-title,
       .polish-dark .history-item strong {
         color: var(--ink);
+      }
+
+      .polish-dark .subtitle,
+      .polish-dark .field-label,
+      .polish-dark .term span,
+      .polish-dark .notes,
+      .polish-dark .empty-state,
+      .polish-dark .search-result span,
+      .polish-dark .writing-console,
+      .polish-dark .focus-badge,
+      .polish-dark .success-toast span {
+        color: var(--muted);
+      }
+
+      .polish-dark .english-text,
+      .polish-dark .translation {
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.28);
+      }
+
+      .polish-dark input::placeholder,
+      .polish-dark textarea::placeholder {
+        color: #91a2b5;
+        opacity: 1;
+      }
+
+      .polish-dark .chip {
+        background: rgba(206, 225, 235, 0.14);
+        color: #e5edf3;
+      }
+
+      .polish-dark .chip.accent,
+      .polish-dark .self-rate button.selected,
+      .polish-dark .search-result:hover,
+      .polish-dark .search-result:focus-visible {
+        background: rgba(56, 201, 185, 0.2);
+        color: #bdfaf2;
+      }
+
+      .polish-dark .stat strong,
+      .polish-dark .term strong {
+        color: #91f1e5;
+      }
+
+      .polish-dark .mini-navigator button {
+        background: rgba(23, 36, 51, 0.94);
+        color: #dffdfa;
+        border-color: rgba(206, 225, 235, 0.24);
+      }
+
+      .polish-dark .mini-navigator button:hover,
+      .polish-dark .mini-navigator button:focus-visible {
+        background: #38c9b9;
+        color: #082026;
       }
 
       @keyframes polishRise {
