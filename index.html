@@ -1,0 +1,2112 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>医学文献翻译练习</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18212f;
+      --muted: #657083;
+      --line: #d9e0ea;
+      --panel: #ffffff;
+      --wash: #f5f7fb;
+      --accent: #166b68;
+      --accent-strong: #0d4f4d;
+      --accent-soft: #e4f3f1;
+      --mark: #b55b1e;
+      --shadow: 0 16px 36px rgba(28, 39, 56, 0.09);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--wash);
+      color: var(--ink);
+      line-height: 1.65;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      min-height: 42px;
+      padding: 8px 14px;
+      transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: var(--accent);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    button.primary:hover,
+    button.primary:focus-visible {
+      background: var(--accent-strong);
+    }
+
+    button.ghost {
+      background: transparent;
+    }
+
+    .app-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(88px, 1fr));
+      gap: 10px;
+      min-width: 320px;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: 0 8px 20px rgba(28, 39, 56, 0.04);
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .toolbar label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      max-width: 100%;
+      min-width: 0;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 8px 36px 8px 12px;
+    }
+
+    .toolbar select {
+      flex: 1 1 180px;
+    }
+
+    .toolbar #diseaseFilter {
+      flex-basis: 140px;
+    }
+
+    .search-field {
+      position: relative;
+      flex: 1 1 220px;
+      min-width: 180px;
+    }
+
+    .toolbar #searchInput {
+      width: 100%;
+    }
+
+    .search-results {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      z-index: 12;
+      display: none;
+      max-height: 260px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 6px;
+    }
+
+    .search-results.visible {
+      display: grid;
+      gap: 4px;
+    }
+
+    .search-result {
+      width: 100%;
+      min-height: 0;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      text-align: left;
+      line-height: 1.45;
+      transform: none;
+    }
+
+    .search-result:hover,
+    .search-result:focus-visible {
+      background: var(--accent-soft);
+      border-color: transparent;
+      transform: none;
+    }
+
+    .search-result strong,
+    .search-result span {
+      display: block;
+    }
+
+    .search-result strong {
+      font-size: 14px;
+    }
+
+    .search-result span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .search-empty {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 9px 10px;
+    }
+
+    .toolbar #articleSelect {
+      flex: 2 1 240px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(340px, 0.82fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--line);
+      padding: 18px 20px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border-radius: 8px;
+      background: #edf1f6;
+      color: #374154;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 9px;
+    }
+
+    .chip.accent {
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+    }
+
+    .article-body {
+      padding: 20px;
+    }
+
+    .english-text {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 18px;
+      line-height: 1.82;
+      color: #172033;
+    }
+
+    .practice {
+      padding: 20px;
+    }
+
+    .field-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #fbfcfe;
+      padding: 14px;
+      line-height: 1.72;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      outline: 3px solid rgba(22, 107, 104, 0.13);
+      background: #fff;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .result-banner {
+      display: none;
+      margin: 12px 0 0;
+      border: 1px solid rgba(22, 107, 104, 0.22);
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 9px 12px;
+    }
+
+    .result-banner.visible {
+      display: block;
+    }
+
+    .feedback {
+      display: none;
+      border-top: 1px solid var(--line);
+      padding: 20px;
+      background: #fbfcfe;
+    }
+
+    .feedback.visible {
+      display: block;
+    }
+
+    .success-toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 30;
+      display: grid;
+      gap: 6px;
+      min-width: min(320px, calc(100vw - 40px));
+      max-width: calc(100vw - 40px);
+      border: 1px solid rgba(13, 79, 77, 0.24);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 24px 60px rgba(24, 33, 47, 0.22);
+      color: var(--ink);
+      padding: 18px 20px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -44%) scale(0.96);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .success-toast.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .success-toast strong {
+      color: var(--accent-strong);
+      font-size: 20px;
+      line-height: 1.35;
+    }
+
+    .success-toast span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      color: #263246;
+      font-size: 16px;
+      line-height: 1.35;
+    }
+
+    .translation {
+      margin: 0 0 18px;
+      color: #263246;
+      white-space: pre-wrap;
+    }
+
+    .terms {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 18px;
+    }
+
+    .term {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px 12px;
+    }
+
+    .term strong {
+      color: var(--accent-strong);
+    }
+
+    .term span {
+      color: var(--muted);
+    }
+
+    .self-rate {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .self-rate button.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-strong);
+      font-weight: 700;
+    }
+
+    .notes {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 12px 0 0;
+    }
+
+    .history {
+      margin-top: 16px;
+      padding: 18px 20px;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .history-item strong {
+      color: var(--ink);
+    }
+
+    .empty-state {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        display: block;
+      }
+
+      .stats {
+        margin-top: 16px;
+        min-width: 0;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app-shell {
+        width: min(100% - 20px, 1180px);
+        padding-top: 18px;
+      }
+
+      .stats,
+      .self-rate {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .panel-header,
+      .history-item {
+        display: block;
+      }
+
+      .actions button,
+      .toolbar button,
+      .toolbar select {
+        width: 100%;
+      }
+
+      textarea {
+        min-height: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>医学文献翻译练习</h1>
+        <p class="subtitle">按《临床常见疾病医学英语文献阅读》目录建立科室索引，选择科室后进入对应文献翻译练习。</p>
+      </div>
+      <div class="stats" aria-label="练习统计">
+        <div class="stat">
+          <span>已完成</span>
+          <strong id="completedCount">0</strong>
+        </div>
+        <div class="stat">
+          <span>资料库</span>
+          <strong id="totalCount">0</strong>
+        </div>
+        <div class="stat">
+          <span>当前词数</span>
+          <strong id="wordCount">0</strong>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="练习控制">
+      <label for="diseaseFilter">科室分类</label>
+      <select id="diseaseFilter"></select>
+      <label for="searchInput">搜索文献</label>
+      <div class="search-field">
+        <input id="searchInput" type="search" placeholder="输入题目或主题" autocomplete="off">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      <label for="articleSelect">文献主题</label>
+      <select id="articleSelect"></select>
+      <button type="button" id="randomBtn">随机下一篇</button>
+      <button type="button" id="resetBtn" class="ghost">清空当前输入</button>
+    </section>
+
+    <section class="layout">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title" id="articleTitle"></h2>
+            <div class="meta-row" id="metaRow"></div>
+          </div>
+          <button type="button" id="toggleReferenceBtn">查看参考</button>
+        </div>
+        <div class="article-body">
+          <p class="english-text" id="englishText"></p>
+        </div>
+      </article>
+
+      <aside class="panel">
+        <div class="practice">
+          <label class="field-label" for="translationInput">
+            <span>我的中文译文</span>
+            <span id="savedStatus">未保存</span>
+          </label>
+          <textarea id="translationInput" placeholder="在这里输入你的中文翻译。完成后点击提交，对照参考译文和重点术语。"></textarea>
+          <div class="actions">
+            <button type="button" id="submitBtn" class="primary">提交并对照</button>
+            <button type="button" id="saveBtn">保存草稿</button>
+          </div>
+          <p class="result-banner" id="resultBanner" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="feedback" id="feedback">
+          <h3 class="section-title">参考译文</h3>
+          <p class="translation" id="referenceTranslation"></p>
+
+          <h3 class="section-title">重点术语</h3>
+          <div class="terms" id="terms"></div>
+
+          <h3 class="section-title">学习提示</h3>
+          <p class="translation" id="studyTip"></p>
+
+          <h3 class="section-title">本次自评</h3>
+          <div class="self-rate" id="selfRate">
+            <button type="button" data-rate="1">需重练</button>
+            <button type="button" data-rate="2">基本理解</button>
+            <button type="button" data-rate="3">较流畅</button>
+            <button type="button" data-rate="4">可复述</button>
+          </div>
+          <p class="notes" id="feedbackNote"></p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="panel history">
+      <h2 class="panel-title">最近练习记录</h2>
+      <div class="history-list" id="historyList"></div>
+    </section>
+  </main>
+
+  <div class="success-toast" id="successToast" role="status" aria-live="polite" aria-atomic="true">
+    <strong id="toastTitle">提交成功</strong>
+    <span id="toastMessage">正在打开中文翻译对照</span>
+  </div>
+
+  <script>
+    const categoryOrder = [
+          "全部",
+          "内科",
+          "外科",
+          "妇产科",
+          "儿科"
+    ];
+
+    const literatureSegments = [
+          {
+                "id": "internal-medicine-hypertension-management-in-elderly-patients",
+                "englishTitle": "Hypertension Management in Elderly Patients",
+                "chineseTitle": "Hypertension Management in Elderly Patients",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "初中级",
+                "englishText": "Hypertension in older adults is a major contributor to stroke, heart failure, chronic kidney disease, and cognitive decline. Age-related arterial stiffening increases systolic blood pressure and widens pulse pressure, while baroreceptor sensitivity and renal sodium handling often become impaired. Diagnosis should be based on repeated standardized office measurements, supported by home or ambulatory blood pressure monitoring when white-coat or masked hypertension is suspected. Treatment begins with salt reduction, weight control, regular aerobic activity, moderation of alcohol intake, and review of medications that may raise blood pressure. Thiazide-type diuretics, calcium channel blockers, angiotensin-converting enzyme inhibitors, and angiotensin receptor blockers are commonly used, with drug selection individualized by comorbidities and tolerability. Randomized evidence supports antihypertensive therapy in older patients, but very intensive targets require caution in frail individuals because orthostatic hypotension, falls, electrolyte disturbances, and renal dysfunction may occur."
+          },
+          {
+                "id": "internal-medicine-acute-coronary-syndrome-and-plaque-rupture",
+                "englishTitle": "Acute Coronary Syndrome and Plaque Rupture",
+                "chineseTitle": "Acute Coronary Syndrome and Plaque Rupture",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "初中级",
+                "englishText": "Acute coronary syndrome usually results from rupture or erosion of an atherosclerotic plaque with superimposed platelet activation and thrombus formation. Patients may present with retrosternal chest pressure, dyspnea, diaphoresis, nausea, syncope, or atypical symptoms, especially in older adults, women, and patients with diabetes. Initial evaluation includes electrocardiography, cardiac troponin testing, hemodynamic assessment, and risk stratification. ST-segment elevation myocardial infarction requires urgent reperfusion by primary percutaneous coronary intervention when available, or fibrinolytic therapy when timely intervention cannot be achieved. Non-ST elevation syndromes are managed with antiplatelet therapy, anticoagulation, anti-ischemic treatment, high-intensity statins, and an invasive strategy for patients at elevated risk. Recurrent ischemia, ventricular arrhythmia, and mechanical complications require close monitoring during the early hospital phase. Secondary prevention includes smoking cessation, blood pressure and lipid control, cardiac rehabilitation, beta-blockers when indicated, and long-term antithrombotic therapy according to bleeding risk."
+          },
+          {
+                "id": "internal-medicine-type-2-diabetes-and-cardiovascular-risk",
+                "englishTitle": "Type 2 Diabetes and Cardiovascular Risk",
+                "chineseTitle": "Type 2 Diabetes and Cardiovascular Risk",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "初中级",
+                "englishText": "Type 2 diabetes mellitus is characterized by insulin resistance, progressive beta-cell dysfunction, and chronic hyperglycemia. Long-standing metabolic abnormalities promote microvascular complications, including retinopathy, nephropathy, and neuropathy, as well as accelerated atherosclerotic cardiovascular disease. Diagnosis is based on fasting plasma glucose, glycated hemoglobin, oral glucose tolerance testing, or random glucose with classic symptoms. Management requires structured nutrition therapy, physical activity, weight reduction when appropriate, and individualized pharmacologic therapy. Metformin remains a common initial agent unless contraindicated. In patients with established cardiovascular disease, heart failure, or chronic kidney disease, sodium-glucose cotransporter 2 inhibitors or glucagon-like peptide-1 receptor agonists may provide organ-protective benefits beyond glucose lowering. Glycemic targets should consider age, hypoglycemia risk, disease duration, comorbid illness, and patient preference. Screening for albuminuria, retinal disease, foot ulcers, dyslipidemia, and hypertension is essential for comprehensive care."
+          },
+          {
+                "id": "internal-medicine-chronic-obstructive-pulmonary-disease-exacerbation",
+                "englishTitle": "Chronic Obstructive Pulmonary Disease Exacerbation",
+                "chineseTitle": "Chronic Obstructive Pulmonary Disease Exacerbation",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "初中级",
+                "englishText": "Chronic obstructive pulmonary disease is a progressive inflammatory airway disorder most commonly associated with tobacco exposure, biomass smoke, occupational dust, or genetic susceptibility such as alpha-1 antitrypsin deficiency. An acute exacerbation is defined by worsening dyspnea, cough, sputum volume, or sputum purulence beyond usual daily variation. Viral infection, bacterial infection, air pollution, and poor inhaler adherence are common triggers. Evaluation should assess oxygen saturation, respiratory effort, mental status, comorbid cardiac disease, and the possibility of pneumonia, pulmonary embolism, or heart failure. Treatment includes short-acting bronchodilators, controlled oxygen therapy, systemic corticosteroids, and antibiotics when bacterial infection is likely. Noninvasive ventilation improves outcomes in selected patients with acute hypercapnic respiratory failure. Long-term prevention involves smoking cessation, vaccination, pulmonary rehabilitation, inhaled maintenance therapy based on symptoms and exacerbation history, and education on inhaler technique."
+          },
+          {
+                "id": "internal-medicine-chronic-kidney-disease-and-proteinuria",
+                "englishTitle": "Chronic Kidney Disease and Proteinuria",
+                "chineseTitle": "Chronic Kidney Disease and Proteinuria",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "初中级",
+                "englishText": "Chronic kidney disease is defined by persistent abnormalities of kidney structure or function, usually reflected by reduced estimated glomerular filtration rate, albuminuria, urinary sediment abnormalities, imaging changes, or histologic injury. Diabetes, hypertension, glomerulonephritis, polycystic kidney disease, and recurrent urinary obstruction are frequent causes. Proteinuria is both a marker of glomerular damage and a mediator of progressive tubulointerstitial inflammation and fibrosis. Clinical assessment includes blood pressure measurement, serum creatinine, electrolytes, urine albumin-to-creatinine ratio, urinalysis, renal ultrasound when indicated, and evaluation for systemic disease. Treatment focuses on slowing progression, reducing cardiovascular risk, and preventing complications. Renin-angiotensin system blockade reduces albuminuria in many patients, while sodium-glucose cotransporter 2 inhibitors have shown kidney-protective effects in selected populations. Anemia, metabolic acidosis, mineral and bone disorder, hyperkalemia, and volume overload require regular monitoring and individualized management."
+          },
+          {
+                "id": "internal-medicine-community-acquired-pneumonia-in-adults",
+                "englishTitle": "Community-Acquired Pneumonia in Adults",
+                "chineseTitle": "Community-Acquired Pneumonia in Adults",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "初中级",
+                "englishText": "Community-acquired pneumonia is an acute infection of the pulmonary parenchyma acquired outside the hospital or within the early period after admission. Streptococcus pneumoniae, respiratory viruses, Haemophilus influenzae, atypical bacteria, and aspiration-related organisms are common causes, depending on host factors and epidemiology. Patients typically report fever, cough, purulent sputum, pleuritic chest pain, dyspnea, or fatigue, although older adults may present with confusion or functional decline. Diagnosis is supported by compatible symptoms, focal lung findings, inflammatory markers, and chest imaging showing a new infiltrate. Severity assessment helps determine outpatient treatment, hospital admission, or intensive care. Empiric antibiotics should cover likely pathogens and be adjusted when microbiologic results become available. Supportive care includes oxygen, fluid management, fever control, and treatment of sepsis if present. Prevention relies on influenza vaccination, pneumococcal vaccination, smoking cessation, and management of chronic cardiopulmonary disease."
+          },
+          {
+                "id": "internal-medicine-rheumatoid-arthritis-and-early-disease-control",
+                "englishTitle": "Rheumatoid Arthritis and Early Disease Control",
+                "chineseTitle": "Rheumatoid Arthritis and Early Disease Control",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中级",
+                "englishText": "Rheumatoid arthritis is a chronic systemic autoimmune disease characterized by synovial inflammation, autoantibody production, cartilage damage, and bone erosion. Patients often present with symmetric pain and swelling of small joints, morning stiffness lasting more than one hour, fatigue, and reduced hand function. Extra-articular manifestations may involve the lungs, eyes, skin, blood vessels, or cardiovascular system. Laboratory findings can include rheumatoid factor, anti-citrullinated protein antibodies, elevated erythrocyte sedimentation rate, or increased C-reactive protein, but diagnosis remains clinical and should consider imaging evidence of synovitis or erosion. Early initiation of disease-modifying antirheumatic drugs improves long-term outcomes. Methotrexate is commonly used as first-line therapy, with folate supplementation and monitoring for hepatic, hematologic, and pulmonary toxicity. Biologic or targeted synthetic agents may be added when disease activity remains high. Treatment aims for remission or low disease activity using regular assessment."
+          },
+          {
+                "id": "internal-medicine-heart-failure-with-preserved-ejection-fraction",
+                "englishTitle": "Heart Failure With Preserved Ejection Fraction",
+                "chineseTitle": "Heart Failure With Preserved Ejection Fraction",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中级",
+                "englishText": "Heart failure with preserved ejection fraction is a clinical syndrome in which patients have symptoms and signs of heart failure despite a left ventricular ejection fraction that is not markedly reduced. The condition is common in older adults and is associated with hypertension, obesity, diabetes, chronic kidney disease, atrial fibrillation, and coronary artery disease. Pathophysiology includes impaired ventricular relaxation, increased chamber stiffness, endothelial inflammation, microvascular dysfunction, and elevated filling pressures during exertion. Patients may present with exertional dyspnea, orthopnea, edema, exercise intolerance, or recurrent hospitalization for congestion. Diagnosis requires clinical evaluation, natriuretic peptide measurement, echocardiography, and exclusion of mimicking disorders such as lung disease or anemia. Management includes diuretics for volume overload, aggressive treatment of hypertension, control of atrial fibrillation, weight management, exercise training, and treatment of comorbidities. Selected drug classes have demonstrated reductions in heart failure hospitalization."
+          },
+          {
+                "id": "internal-medicine-liver-cirrhosis-and-portal-hypertension",
+                "englishTitle": "Liver Cirrhosis and Portal Hypertension",
+                "chineseTitle": "Liver Cirrhosis and Portal Hypertension",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中级",
+                "englishText": "Cirrhosis represents the final common pathway of chronic liver injury, with diffuse fibrosis, regenerative nodules, and distortion of hepatic vascular architecture. Common causes include chronic viral hepatitis, alcohol-associated liver disease, metabolic dysfunction-associated steatotic liver disease, autoimmune hepatitis, and cholestatic disorders. Portal hypertension develops when resistance to portal blood flow increases, leading to splenomegaly, thrombocytopenia, ascites, gastroesophageal varices, hepatic encephalopathy, and hepatorenal syndrome. Clinical evaluation includes liver biochemistry, coagulation tests, platelet count, viral serology, autoimmune markers when indicated, ultrasound, elastography, and endoscopic screening for varices. Management depends on the stage of disease and includes treatment of the underlying cause, vaccination, avoidance of hepatotoxic drugs, nutritional support, sodium restriction for ascites, nonselective beta-blockers or endoscopic therapy for variceal bleeding prevention, and surveillance for hepatocellular carcinoma. Liver transplantation should be considered in advanced decompensated disease."
+          },
+          {
+                "id": "internal-medicine-sepsis-recognition-and-early-management",
+                "englishTitle": "Sepsis Recognition and Early Management",
+                "chineseTitle": "Sepsis Recognition and Early Management",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中级",
+                "englishText": "Sepsis is life-threatening organ dysfunction caused by a dysregulated host response to infection. It may arise from pneumonia, intra-abdominal infection, urinary tract infection, skin and soft tissue infection, meningitis, or bloodstream infection. Early clinical clues include fever or hypothermia, tachycardia, tachypnea, hypotension, altered mental status, oliguria, mottled skin, and elevated lactate. Diagnosis requires suspicion of infection and assessment for organ dysfunction rather than reliance on a single laboratory value. Initial management emphasizes rapid recognition, measurement of lactate, collection of appropriate cultures, prompt administration of broad-spectrum antimicrobials, fluid resuscitation for hypoperfusion, and vasopressors when shock persists despite adequate volume. Source control through drainage, debridement, device removal, or surgery is critical when a removable focus exists. Ongoing care includes antimicrobial de-escalation, hemodynamic monitoring, organ support, prevention of complications, and rehabilitation after critical illness."
+          },
+          {
+                "id": "internal-medicine-atrial-fibrillation-and-stroke-prevention",
+                "englishTitle": "Atrial Fibrillation and Stroke Prevention",
+                "chineseTitle": "Atrial Fibrillation and Stroke Prevention",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中级",
+                "englishText": "Atrial fibrillation is the most common sustained cardiac arrhythmia in adults and is associated with aging, hypertension, valvular disease, heart failure, hyperthyroidism, obesity, alcohol use, and sleep apnea. Loss of coordinated atrial contraction and irregular ventricular response may cause palpitations, dyspnea, fatigue, dizziness, chest discomfort, or worsening heart failure. Some patients remain asymptomatic and are detected through pulse examination or electrocardiography. The major clinical hazard is thromboembolism, especially ischemic stroke arising from left atrial appendage thrombus. Evaluation includes assessment of reversible triggers, echocardiography, thyroid function, renal function, bleeding risk, and symptom burden. Management includes rate control, rhythm control in selected patients, anticoagulation according to thromboembolic risk, and treatment of associated conditions. Direct oral anticoagulants are widely used for nonvalvular atrial fibrillation, while warfarin remains necessary in some valvular or mechanical valve settings. Catheter ablation may improve symptoms in carefully selected patients."
+          },
+          {
+                "id": "internal-medicine-iron-deficiency-anemia-in-adults",
+                "englishTitle": "Iron Deficiency Anemia in Adults",
+                "chineseTitle": "Iron Deficiency Anemia in Adults",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中级",
+                "englishText": "Iron deficiency anemia results from insufficient iron availability for hemoglobin synthesis and is commonly caused by chronic blood loss, inadequate intake, increased demand, or impaired absorption. In adults, occult gastrointestinal bleeding, heavy menstrual bleeding, pregnancy, malabsorption, bariatric surgery, and inflammatory bowel disease are important causes. Patients may report fatigue, exertional dyspnea, reduced exercise tolerance, palpitations, dizziness, pica, brittle nails, or restless legs. Laboratory evaluation typically shows microcytic hypochromic anemia, low ferritin, low transferrin saturation, and increased total iron-binding capacity, although ferritin may be falsely normal or elevated during inflammation. Management requires both iron replacement and identification of the underlying cause. Oral iron is effective for many patients, but gastrointestinal adverse effects and poor adherence are common. Intravenous iron is useful when rapid repletion is needed, oral therapy fails, absorption is impaired, or ongoing losses are substantial. Failure to respond should prompt reassessment of diagnosis and bleeding sources."
+          },
+          {
+                "id": "internal-medicine-inflammatory-bowel-disease-flare",
+                "englishTitle": "Inflammatory Bowel Disease Flare",
+                "chineseTitle": "Inflammatory Bowel Disease Flare",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中级",
+                "englishText": "Inflammatory bowel disease includes ulcerative colitis and Crohn disease, both characterized by chronic relapsing intestinal inflammation driven by genetic susceptibility, immune dysregulation, microbial factors, and environmental triggers. A flare may present with diarrhea, abdominal pain, rectal bleeding, urgency, fever, weight loss, anemia, or extraintestinal manifestations involving joints, skin, eyes, and hepatobiliary structures. Evaluation should distinguish active inflammation from infection, irritable bowel syndrome, medication effects, and structural complications. Tests may include complete blood count, inflammatory markers, stool studies, fecal calprotectin, endoscopy, biopsy, and cross-sectional imaging when small bowel disease or abscess is suspected. Treatment depends on disease location, severity, prior response, and complications. Options include aminosalicylates for selected ulcerative colitis, corticosteroids for induction, immunomodulators, biologic agents, small-molecule therapies, nutrition support, and surgery for refractory or complicated disease. Long-term care includes vaccination, cancer surveillance, bone health, and monitoring for medication toxicity."
+          },
+          {
+                "id": "internal-medicine-pulmonary-embolism-diagnosis-and-risk-stratification",
+                "englishTitle": "Pulmonary Embolism Diagnosis and Risk Stratification",
+                "chineseTitle": "Pulmonary Embolism Diagnosis and Risk Stratification",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中级",
+                "englishText": "Pulmonary embolism occurs when thrombotic material, usually from deep veins of the legs or pelvis, obstructs the pulmonary arterial circulation. Risk factors include recent surgery, trauma, immobilization, cancer, pregnancy, estrogen therapy, inherited thrombophilia, prior venous thromboembolism, and acute medical illness. Clinical presentation is variable and may include sudden dyspnea, pleuritic chest pain, cough, hemoptysis, syncope, tachycardia, hypoxemia, or signs of deep vein thrombosis. Diagnostic evaluation begins with estimation of pretest probability. D-dimer testing can exclude disease in low-risk patients, while computed tomographic pulmonary angiography is commonly used when imaging is required. Hemodynamic instability suggests massive embolism and requires urgent evaluation. Treatment includes anticoagulation, with duration determined by provoking factors and recurrence risk. Thrombolysis, catheter-directed therapy, or surgical embolectomy may be considered for high-risk patients with shock or severe right ventricular dysfunction. Prevention relies on appropriate thromboprophylaxis in hospitalized and postoperative patients."
+          },
+          {
+                "id": "internal-medicine-acute-kidney-injury-in-hospitalized-patients",
+                "englishTitle": "Acute Kidney Injury in Hospitalized Patients",
+                "chineseTitle": "Acute Kidney Injury in Hospitalized Patients",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中高级",
+                "englishText": "Acute kidney injury is a sudden decline in renal function manifested by rising serum creatinine, reduced urine output, or both. It is common among hospitalized patients and is associated with increased mortality, prolonged stay, and later chronic kidney disease. Causes are often classified as prerenal hypoperfusion, intrinsic renal injury, or postrenal obstruction. Sepsis, dehydration, heart failure, nephrotoxic drugs, contrast exposure, rhabdomyolysis, glomerulonephritis, and urinary retention are frequent contributors. Evaluation includes volume status, medication review, urinalysis, urine microscopy, electrolytes, renal ultrasound when obstruction is possible, and assessment for systemic disease. Management focuses on correcting hypoperfusion, stopping nephrotoxins, adjusting drug doses, treating infection or obstruction, and monitoring potassium, acid-base status, and fluid balance. Dialysis is indicated for refractory hyperkalemia, severe acidosis, pulmonary edema, uremic complications, or certain toxin exposures. Recovery may be incomplete, so follow-up renal assessment after discharge is important."
+          },
+          {
+                "id": "internal-medicine-acute-ischemic-stroke",
+                "englishTitle": "Acute Ischemic Stroke",
+                "chineseTitle": "Acute Ischemic Stroke",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中高级",
+                "englishText": "Acute ischemic stroke results from sudden interruption of cerebral blood flow due to arterial thrombosis, embolism, or small vessel occlusion. Symptoms depend on the vascular territory and may include unilateral weakness, facial droop, speech disturbance, visual loss, ataxia, neglect, sensory loss, or altered consciousness. Rapid recognition is essential because reperfusion therapy is time sensitive. Initial assessment includes airway and circulation evaluation, blood glucose measurement, neurological scoring, noncontrast brain computed tomography or magnetic resonance imaging to exclude hemorrhage, and vascular imaging when large vessel occlusion is suspected. Intravenous thrombolysis may benefit eligible patients within an accepted time window, while mechanical thrombectomy improves outcomes in selected patients with proximal large vessel occlusion. Supportive care includes blood pressure management, swallowing assessment, antiplatelet or anticoagulant decisions, statin therapy, venous thromboembolism prevention, and early rehabilitation. Secondary prevention targets hypertension, diabetes, smoking, dyslipidemia, atrial fibrillation, and carotid disease."
+          },
+          {
+                "id": "internal-medicine-peptic-ulcer-disease-and-helicobacter-pylori",
+                "englishTitle": "Peptic Ulcer Disease and Helicobacter pylori",
+                "chineseTitle": "Peptic Ulcer Disease and Helicobacter pylori",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中高级",
+                "englishText": "Peptic ulcer disease involves mucosal ulceration in the stomach or duodenum caused by imbalance between aggressive factors and mucosal defense. Helicobacter pylori infection and nonsteroidal anti-inflammatory drug use are the most important causes, while smoking, severe physiologic stress, and certain medications increase risk. Patients may present with epigastric pain, early satiety, nausea, bloating, occult bleeding, iron deficiency anemia, melena, hematemesis, or perforation with sudden severe abdominal pain. Diagnosis may involve noninvasive testing for Helicobacter pylori, upper endoscopy, biopsy of gastric ulcers, and evaluation for complications. Treatment includes proton pump inhibitor therapy, eradication therapy when Helicobacter pylori is present, discontinuation or risk reduction of ulcerogenic drugs, and management of bleeding when necessary. Confirmation of eradication is recommended after therapy using appropriate testing. Alarm features such as weight loss, anemia, dysphagia, persistent vomiting, or older age at onset warrant endoscopic evaluation."
+          },
+          {
+                "id": "internal-medicine-thyrotoxicosis-and-graves-disease",
+                "englishTitle": "Thyrotoxicosis and Graves Disease",
+                "chineseTitle": "Thyrotoxicosis and Graves Disease",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中高级",
+                "englishText": "Thyrotoxicosis is the clinical state caused by excess circulating thyroid hormone, whereas hyperthyroidism refers to increased synthesis and secretion by the thyroid gland. Graves disease is the most common autoimmune cause and results from thyroid-stimulating immunoglobulins activating the thyrotropin receptor. Symptoms include weight loss, heat intolerance, tremor, palpitations, anxiety, insomnia, hyperdefecation, menstrual disturbance, proximal muscle weakness, and fatigue. Examination may reveal tachycardia, goiter, lid lag, warm skin, brisk reflexes, atrial fibrillation, or orbitopathy. Laboratory testing typically shows suppressed thyroid-stimulating hormone with elevated free thyroxine or triiodothyronine. Antibody testing and radionuclide uptake can help distinguish Graves disease from thyroiditis or toxic nodular disease. Treatment options include beta-blockers for symptom relief, antithyroid drugs, radioactive iodine, or thyroidectomy depending on severity, pregnancy status, comorbidities, and preference. Severe untreated thyrotoxicosis can progress to thyroid storm, a medical emergency requiring intensive treatment."
+          },
+          {
+                "id": "internal-medicine-gout-and-urate-crystal-arthritis",
+                "englishTitle": "Gout and Urate Crystal Arthritis",
+                "chineseTitle": "Gout and Urate Crystal Arthritis",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中高级",
+                "englishText": "Gout is an inflammatory arthritis caused by deposition of monosodium urate crystals in joints and soft tissues due to chronic hyperuricemia. Risk factors include male sex, older age, chronic kidney disease, diuretic use, obesity, hypertension, alcohol intake, purine-rich diet, metabolic syndrome, and genetic variation in urate transport. Acute attacks often cause abrupt severe pain, erythema, warmth, and swelling, classically at the first metatarsophalangeal joint but also involving ankles, knees, wrists, or elbows. Diagnosis is confirmed by identification of negatively birefringent needle-shaped crystals in synovial fluid, although clinical pattern and imaging may support diagnosis. Acute treatment includes nonsteroidal anti-inflammatory drugs, colchicine, or corticosteroids, chosen according to renal function and comorbidities. Long-term urate-lowering therapy is indicated for recurrent attacks, tophi, urate nephrolithiasis, or chronic kidney disease in appropriate patients. Flares may occur after therapy initiation, so prophylaxis and patient education are important."
+          },
+          {
+                "id": "internal-medicine-tuberculosis-diagnosis-and-treatment-principles",
+                "englishTitle": "Tuberculosis Diagnosis and Treatment Principles",
+                "chineseTitle": "Tuberculosis Diagnosis and Treatment Principles",
+                "category": "内科",
+                "sourceCategory": "Internal Medicine",
+                "difficulty": "中高级",
+                "englishText": "Tuberculosis is an infectious disease caused by Mycobacterium tuberculosis and is transmitted through airborne droplet nuclei, most often affecting the lungs. Risk is increased by close exposure, immunosuppression, malnutrition, diabetes, chronic kidney disease, silicosis, homelessness, incarceration, and residence in high-burden settings. Pulmonary disease may present with chronic cough, fever, night sweats, weight loss, hemoptysis, fatigue, or abnormal chest imaging. Diagnosis involves sputum smear microscopy, nucleic acid amplification testing, mycobacterial culture, drug susceptibility testing, and evaluation for extrapulmonary involvement when symptoms suggest dissemination. Latent infection is identified by tuberculin skin testing or interferon-gamma release assays, neither of which distinguishes active disease. Standard treatment for drug-susceptible pulmonary tuberculosis uses multiple drugs to prevent resistance and achieve cure. Adherence support, monitoring for hepatotoxicity and visual symptoms, public health notification, contact tracing, and airborne isolation for contagious patients are essential components of management."
+          },
+          {
+                "id": "surgery-acute-appendicitis-and-surgical-decision-making",
+                "englishTitle": "Acute Appendicitis and Surgical Decision-Making",
+                "chineseTitle": "Acute Appendicitis and Surgical Decision-Making",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "初中级",
+                "englishText": "Acute appendicitis is commonly caused by obstruction of the appendiceal lumen by lymphoid hyperplasia, fecalith, tumor, or foreign material, followed by bacterial overgrowth, venous congestion, ischemia, and inflammation. Patients classically develop periumbilical pain that migrates to the right lower quadrant, accompanied by anorexia, nausea, low-grade fever, and localized tenderness. Leukocytosis and elevated inflammatory markers support the diagnosis, but imaging with ultrasound or computed tomography is often used when the presentation is atypical. Appendectomy remains the definitive treatment and may be performed laparoscopically in most stable patients. Antibiotic-first strategies can be effective for selected uncomplicated cases, although recurrence and later surgery remain concerns. Perforation, abscess, or generalized peritonitis requires broader antimicrobial coverage, drainage when appropriate, and timely operative management. Clinical judgment should incorporate age, pregnancy status, comorbidities, imaging findings, and local surgical expertise."
+          },
+          {
+                "id": "surgery-gallstone-disease-and-acute-cholecystitis",
+                "englishTitle": "Gallstone Disease and Acute Cholecystitis",
+                "chineseTitle": "Gallstone Disease and Acute Cholecystitis",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "初中级",
+                "englishText": "Gallstone disease results from precipitation of cholesterol, bilirubin, or mixed components within bile. Many gallstones are asymptomatic, but transient cystic duct obstruction may cause biliary colic, typically presenting as episodic right upper quadrant or epigastric pain after meals. Acute cholecystitis occurs when persistent obstruction triggers gallbladder inflammation, ischemia, and secondary infection. Patients often have fever, nausea, vomiting, leukocytosis, and a positive Murphy sign. Ultrasonography is the preferred initial imaging test and may show gallstones, gallbladder wall thickening, pericholecystic fluid, or sonographic tenderness. Liver enzymes and bilirubin help evaluate possible common bile duct obstruction. Treatment includes fasting, intravenous fluids, analgesia, antibiotics when infection is suspected, and early laparoscopic cholecystectomy for most operable patients. Percutaneous cholecystostomy may be considered in critically ill or high-risk patients who cannot tolerate surgery. Complications include empyema, gangrene, perforation, choledocholithiasis, pancreatitis, and recurrent biliary events."
+          },
+          {
+                "id": "surgery-colorectal-cancer-screening-and-staging",
+                "englishTitle": "Colorectal Cancer Screening and Staging",
+                "chineseTitle": "Colorectal Cancer Screening and Staging",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "初中级",
+                "englishText": "Colorectal cancer develops through accumulation of genetic and epigenetic alterations that transform normal mucosa into adenoma and invasive carcinoma. Risk factors include age, family history, inflammatory bowel disease, hereditary syndromes, obesity, smoking, alcohol use, processed meat intake, and physical inactivity. Screening aims to detect premalignant polyps or early cancer before symptoms occur. Options include colonoscopy, fecal immunochemical testing, stool DNA testing, flexible sigmoidoscopy, and computed tomographic colonography, with interval and modality determined by risk profile and local recommendations. Symptoms of established disease may include occult bleeding, iron deficiency anemia, altered bowel habit, abdominal pain, weight loss, or obstruction. Diagnosis requires colonoscopic biopsy. Staging relies on imaging and pathologic assessment of tumor invasion, nodal involvement, and distant metastasis. Treatment may include surgical resection, chemotherapy, radiotherapy for selected rectal cancers, targeted therapy, immunotherapy for specific molecular subtypes, and surveillance after curative treatment."
+          },
+          {
+                "id": "surgery-trauma-hemorrhage-and-damage-control-resuscitation",
+                "englishTitle": "Trauma Hemorrhage and Damage Control Resuscitation",
+                "chineseTitle": "Trauma Hemorrhage and Damage Control Resuscitation",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "初中级",
+                "englishText": "Uncontrolled hemorrhage is a leading preventable cause of death after major trauma. Severe bleeding produces tissue hypoperfusion, acidosis, hypothermia, coagulopathy, and endothelial dysfunction, creating a cycle that can rapidly become fatal. Initial management follows structured trauma assessment with attention to airway, breathing, circulation, disability, and exposure. External bleeding should be controlled immediately with direct pressure, tourniquets, hemostatic dressings, or pelvic binders when indicated. Damage control resuscitation emphasizes early balanced transfusion of red blood cells, plasma, and platelets, permissive hypotension before definitive control in selected patients, prevention of hypothermia, calcium replacement when needed, and avoidance of excessive crystalloid infusion. Tranexamic acid may reduce mortality when given early to appropriately selected bleeding trauma patients. Definitive hemorrhage control may require operative exploration, interventional radiology, endovascular techniques, fracture stabilization, or temporary packing followed by staged reconstruction."
+          },
+          {
+                "id": "surgery-breast-cancer-evaluation-and-multimodal-therapy",
+                "englishTitle": "Breast Cancer Evaluation and Multimodal Therapy",
+                "chineseTitle": "Breast Cancer Evaluation and Multimodal Therapy",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "初中级",
+                "englishText": "Breast cancer is a heterogeneous malignancy classified by histology, stage, hormone receptor status, human epidermal growth factor receptor 2 expression, and genomic risk features. Patients may present with a painless breast mass, nipple discharge, skin dimpling, nipple retraction, axillary lymphadenopathy, or abnormalities detected by screening mammography. Diagnostic evaluation usually includes clinical examination, mammography, ultrasound, and core needle biopsy. Magnetic resonance imaging may be useful in selected patients, including those with dense breasts, genetic predisposition, or complex local staging questions. Treatment is multimodal and may involve breast-conserving surgery with radiotherapy, mastectomy, sentinel lymph node biopsy, axillary surgery, endocrine therapy, chemotherapy, HER2-directed therapy, immunotherapy for selected triple-negative disease, or targeted agents. Neoadjuvant therapy can downstage tumors and provide information about treatment response. Survivorship care includes surveillance, management of lymphedema, bone health, menopausal symptoms, psychosocial support, and monitoring for recurrence."
+          },
+          {
+                "id": "surgery-inguinal-hernia-diagnosis-and-repair",
+                "englishTitle": "Inguinal Hernia Diagnosis and Repair",
+                "chineseTitle": "Inguinal Hernia Diagnosis and Repair",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "初中级",
+                "englishText": "An inguinal hernia occurs when abdominal contents protrude through a weakness in the groin region. Indirect hernias pass through the internal inguinal ring and may be related to a patent processus vaginalis, whereas direct hernias protrude through a weakness in the posterior wall of the inguinal canal. Patients often notice a groin bulge that enlarges with coughing, lifting, or standing and improves when supine. Pain may be absent or described as dragging discomfort. Diagnosis is usually clinical, but ultrasound or cross-sectional imaging can help when the examination is uncertain. Watchful waiting may be reasonable for minimally symptomatic men, but surgery is indicated for symptomatic hernias, enlarging defects, incarceration, strangulation, or patient preference. Repair may be open or laparoscopic, commonly using mesh to reduce recurrence. Emergency surgery is required when bowel compromise is suspected."
+          },
+          {
+                "id": "surgery-perioperative-infection-prevention",
+                "englishTitle": "Perioperative Infection Prevention",
+                "chineseTitle": "Perioperative Infection Prevention",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中级",
+                "englishText": "Surgical site infection is a common postoperative complication associated with increased pain, delayed healing, prolonged hospitalization, reoperation, and higher cost. Risk depends on wound class, operative duration, tissue perfusion, bacterial inoculum, diabetes control, obesity, smoking, immunosuppression, hypothermia, and breaks in sterile technique. Prevention begins before incision with appropriate patient optimization, hair removal only when necessary using clippers, skin antisepsis, normothermia, glycemic control, and administration of prophylactic antibiotics within the recommended preoperative window. Antibiotic selection should cover expected organisms for the procedure and should not be continued unnecessarily after clean operations. Intraoperative measures include meticulous hemostasis, gentle tissue handling, adequate irrigation when indicated, avoidance of dead space, and maintenance of oxygenation and perfusion. Postoperative surveillance relies on recognition of erythema, warmth, drainage, wound separation, fever, and deep organ-space infection. Treatment may require drainage, debridement, antibiotics, or removal of infected material."
+          },
+          {
+                "id": "surgery-acute-pancreatitis-and-surgical-consultation",
+                "englishTitle": "Acute Pancreatitis and Surgical Consultation",
+                "chineseTitle": "Acute Pancreatitis and Surgical Consultation",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中级",
+                "englishText": "Acute pancreatitis is an inflammatory disorder of the pancreas most often caused by gallstones or alcohol use, although hypertriglyceridemia, medications, trauma, endoscopic procedures, and metabolic disorders may contribute. Premature activation of pancreatic enzymes produces autodigestion, edema, necrosis, systemic inflammation, and organ dysfunction in severe cases. Patients typically present with acute epigastric pain radiating to the back, nausea, vomiting, and abdominal tenderness. Diagnosis is made when characteristic pain, elevated pancreatic enzymes, or imaging findings meet accepted criteria. Early management includes aggressive but individualized intravenous fluid resuscitation, analgesia, nutritional support, and assessment for complications. Routine prophylactic antibiotics are not indicated for sterile necrosis. Gallstone pancreatitis may require early cholecystectomy during the same admission if mild, or delayed intervention when severe inflammation is present. Infected necrosis, abdominal compartment syndrome, persistent biliary obstruction, or clinical deterioration warrants multidisciplinary management."
+          },
+          {
+                "id": "surgery-thyroid-nodules-and-surgical-indications",
+                "englishTitle": "Thyroid Nodules and Surgical Indications",
+                "chineseTitle": "Thyroid Nodules and Surgical Indications",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中级",
+                "englishText": "Thyroid nodules are common and are detected by palpation, ultrasound, or imaging performed for unrelated reasons. Most nodules are benign, but evaluation aims to identify malignancy, clinically significant compression, and functional autonomy. Initial assessment includes history, neck examination, serum thyroid-stimulating hormone, and high-resolution ultrasound. Sonographic features such as irregular margins, microcalcifications, marked hypoechogenicity, taller-than-wide shape, and suspicious cervical lymph nodes increase concern for cancer. Fine-needle aspiration is recommended according to nodule size and risk pattern. Hyperfunctioning nodules are rarely malignant and may require radionuclide scanning when thyroid-stimulating hormone is suppressed. Surgery is indicated for confirmed or suspected malignancy, compressive symptoms, substernal extension, cosmetic concerns, selected indeterminate cytology, or patient preference after counseling. Operative planning considers lobectomy versus total thyroidectomy, lymph node management, recurrent laryngeal nerve preservation, calcium homeostasis, and the need for postoperative thyroid hormone replacement."
+          },
+          {
+                "id": "surgery-postoperative-ileus-after-abdominal-surgery",
+                "englishTitle": "Postoperative Ileus After Abdominal Surgery",
+                "chineseTitle": "Postoperative Ileus After Abdominal Surgery",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中级",
+                "englishText": "Postoperative ileus is a transient impairment of gastrointestinal motility after surgery, most commonly following abdominal or pelvic operations. It results from autonomic neural reflexes, inflammatory mediators, opioid exposure, electrolyte disturbances, bowel manipulation, and immobility. Patients may develop abdominal distension, nausea, vomiting, inability to tolerate oral intake, delayed passage of flatus or stool, and diffuse discomfort. Diagnosis is usually clinical, but imaging may be needed to distinguish ileus from mechanical obstruction, anastomotic leak, abscess, or intra-abdominal bleeding. Management includes correction of hypokalemia or other metabolic abnormalities, minimization of opioids, early ambulation, careful fluid balance, chewing gum in some protocols, and gradual advancement of diet as bowel function returns. Nasogastric decompression is reserved for significant vomiting or distension. Enhanced recovery pathways reduce ileus risk by combining multimodal analgesia, early feeding, minimally invasive techniques, and avoidance of unnecessary tubes."
+          },
+          {
+                "id": "surgery-small-bowel-obstruction",
+                "englishTitle": "Small Bowel Obstruction",
+                "chineseTitle": "Small Bowel Obstruction",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中级",
+                "englishText": "Small bowel obstruction is a common surgical condition caused by interruption of intestinal transit. Adhesions from previous abdominal surgery are the leading cause in many populations, while hernias, tumors, Crohn disease, volvulus, and intussusception are also important. Patients typically develop colicky abdominal pain, distension, vomiting, obstipation, and dehydration. Physical findings may range from high-pitched bowel sounds to peritonitis when ischemia or perforation occurs. Evaluation includes serum electrolytes, renal function, lactate when strangulation is suspected, and imaging, with computed tomography providing information about transition point, closed-loop obstruction, bowel viability, and underlying cause. Initial treatment includes fluid resuscitation, electrolyte correction, bowel rest, nasogastric decompression in selected patients, and close serial examination. Many adhesive partial obstructions resolve without surgery. Urgent operation is required for peritonitis, strangulation, perforation, incarcerated hernia, closed-loop obstruction, or clinical deterioration despite nonoperative management."
+          },
+          {
+                "id": "surgery-liver-trauma-and-nonoperative-management",
+                "englishTitle": "Liver Trauma and Nonoperative Management",
+                "chineseTitle": "Liver Trauma and Nonoperative Management",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中级",
+                "englishText": "Blunt hepatic injury commonly occurs after motor vehicle collisions, falls, or direct abdominal trauma. The liver is vulnerable because of its size, vascularity, and fixed ligamentous attachments. Clinical presentation ranges from mild right upper quadrant tenderness to hemorrhagic shock. Initial management follows trauma resuscitation principles, with attention to airway, breathing, circulation, hemorrhage control, and associated injuries. Hemodynamically stable patients are commonly evaluated with contrast-enhanced computed tomography, which grades injury and detects active contrast extravasation, hemoperitoneum, or vascular complications. Nonoperative management is successful in many stable patients and includes monitoring, serial examinations, laboratory assessment, transfusion when necessary, and interventional radiology for arterial bleeding. Operative management is required for instability despite resuscitation, peritonitis, major associated injuries, or failed nonoperative care. Complications include delayed hemorrhage, bile leak, biloma, abscess, pseudoaneurysm, and abdominal compartment syndrome. Follow-up is guided by clinical course and injury severity."
+          },
+          {
+                "id": "surgery-peripheral-arterial-disease-and-limb-ischemia",
+                "englishTitle": "Peripheral Arterial Disease and Limb Ischemia",
+                "chineseTitle": "Peripheral Arterial Disease and Limb Ischemia",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中级",
+                "englishText": "Peripheral arterial disease results from atherosclerotic narrowing of lower extremity arteries and is associated with smoking, diabetes, hypertension, dyslipidemia, chronic kidney disease, and advanced age. Patients may report exertional calf, thigh, or buttock pain relieved by rest, but many have atypical symptoms or limited mobility. Critical limb-threatening ischemia presents with rest pain, nonhealing ulcers, gangrene, or infection and carries a high risk of amputation and cardiovascular events. Diagnosis is supported by pulse examination, ankle-brachial index, toe pressure measurement, duplex ultrasound, computed tomographic angiography, magnetic resonance angiography, or catheter angiography when intervention is planned. Management includes smoking cessation, antiplatelet therapy, statins, blood pressure and glucose control, supervised exercise therapy, wound care, and infection treatment. Revascularization by endovascular or open surgical techniques is considered for lifestyle-limiting claudication unresponsive to medical therapy or for limb-threatening ischemia. Multidisciplinary care improves limb salvage."
+          },
+          {
+                "id": "surgery-abdominal-aortic-aneurysm",
+                "englishTitle": "Abdominal Aortic Aneurysm",
+                "chineseTitle": "Abdominal Aortic Aneurysm",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中级",
+                "englishText": "An abdominal aortic aneurysm is a permanent focal dilation of the abdominal aorta, most often below the renal arteries. Degeneration of the medial layer, inflammation, proteolytic enzyme activity, smoking, male sex, older age, hypertension, and family history contribute to aneurysm formation. Most aneurysms are asymptomatic and are detected by screening ultrasound or incidental imaging. Large or expanding aneurysms may cause abdominal, back, or flank pain. Rupture presents with hypotension, severe pain, syncope, and a pulsatile abdominal mass, although the classic triad is not always present. Surveillance intervals depend on aneurysm diameter and growth rate. Smoking cessation and cardiovascular risk reduction are important, but no medication reliably prevents expansion. Repair is recommended when rupture risk exceeds procedural risk, commonly based on size, rapid growth, symptoms, or morphology. Options include open surgical repair and endovascular aneurysm repair, with choice influenced by anatomy, comorbidity, durability, and patient preference."
+          },
+          {
+                "id": "surgery-surgical-management-of-diverticulitis",
+                "englishTitle": "Surgical Management of Diverticulitis",
+                "chineseTitle": "Surgical Management of Diverticulitis",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中高级",
+                "englishText": "Diverticulitis occurs when colonic diverticula become inflamed, often due to microperforation and localized bacterial contamination. Patients commonly present with left lower quadrant pain, fever, leukocytosis, altered bowel habits, and localized tenderness. Computed tomography helps confirm the diagnosis, assess severity, and identify abscess, perforation, fistula, obstruction, or alternative disease. Uncomplicated diverticulitis may be managed with bowel rest, analgesia, selective antibiotics, and outpatient care in stable patients. Complicated disease requires individualized management. Percutaneous drainage is useful for accessible abscesses, while emergency surgery is needed for generalized peritonitis, free perforation, uncontrolled sepsis, or failure of nonoperative therapy. Elective colectomy may be considered after recurrent severe episodes, fistula formation, stricture, immunosuppression, or impaired quality of life. Colonoscopy is often recommended after recovery when cancer has not been recently excluded. Decisions should consider episode severity rather than simply the number of attacks."
+          },
+          {
+                "id": "surgery-diabetic-foot-infection-and-debridement",
+                "englishTitle": "Diabetic Foot Infection and Debridement",
+                "chineseTitle": "Diabetic Foot Infection and Debridement",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中高级",
+                "englishText": "Diabetic foot infection develops when neuropathy, peripheral arterial disease, impaired immunity, and repetitive trauma allow ulceration and bacterial invasion. Loss of protective sensation delays recognition, while ischemia impairs wound healing and antibiotic delivery. Clinical findings include erythema, warmth, swelling, purulence, malodor, pain despite neuropathy, systemic symptoms, or exposed bone. Evaluation should determine infection severity, ulcer depth, vascular supply, glycemic control, and the possibility of osteomyelitis. Probe-to-bone testing, inflammatory markers, plain radiographs, magnetic resonance imaging, and bone culture may be used in selected cases. Management requires pressure offloading, wound care, glycemic optimization, vascular assessment, appropriate antibiotics, and surgical debridement of necrotic tissue. Urgent surgery is indicated for necrotizing infection, deep abscess, compartment syndrome, severe ischemia with infection, or systemic toxicity. Revascularization may be necessary for limb salvage. Long-term prevention includes footwear, foot inspection, callus care, smoking cessation, and regular podiatric follow-up."
+          },
+          {
+                "id": "surgery-esophageal-cancer-and-dysphagia",
+                "englishTitle": "Esophageal Cancer and Dysphagia",
+                "chineseTitle": "Esophageal Cancer and Dysphagia",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中高级",
+                "englishText": "Esophageal cancer includes squamous cell carcinoma and adenocarcinoma, with epidemiologic patterns influenced by tobacco, alcohol, gastroesophageal reflux disease, Barrett esophagus, obesity, diet, and environmental exposures. Progressive dysphagia, initially to solids and later to liquids, is a classic symptom. Other features include weight loss, odynophagia, regurgitation, chest discomfort, hoarseness, cough, aspiration, or iron deficiency anemia. Diagnosis requires upper endoscopy with biopsy. Staging uses computed tomography, endoscopic ultrasound, positron emission tomography in selected patients, and bronchoscopy when airway invasion is suspected. Treatment depends on stage, tumor location, histology, performance status, and patient goals. Early superficial lesions may be treated endoscopically or surgically, while locally advanced disease often requires combined chemoradiation and esophagectomy when resectable. Palliative care may include stenting, radiotherapy, systemic therapy, nutritional support, pain control, and aspiration prevention. Multidisciplinary planning is essential because treatment morbidity is substantial."
+          },
+          {
+                "id": "surgery-acute-limb-ischemia",
+                "englishTitle": "Acute Limb Ischemia",
+                "chineseTitle": "Acute Limb Ischemia",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中高级",
+                "englishText": "Acute limb ischemia is a sudden decrease in arterial perfusion that threatens limb viability. Causes include embolism from atrial fibrillation, in situ thrombosis of diseased arteries, graft occlusion, trauma, dissection, and hypercoagulable states. Classic features are pain, pallor, pulselessness, paresthesia, paralysis, poikilothermia, and sometimes mottling. The duration and severity of neurologic deficit are key predictors of salvageability. Initial evaluation should not delay treatment when the limb is threatened. Management includes systemic anticoagulation with heparin unless contraindicated, analgesia, vascular imaging when feasible, and urgent vascular surgery consultation. Revascularization may involve catheter-directed thrombolysis, thromboembolectomy, angioplasty, stenting, bypass surgery, or hybrid approaches. Fasciotomy may be required after reperfusion to treat or prevent compartment syndrome. Irreversible ischemia with profound anesthesia and paralysis may require primary amputation to avoid systemic complications. Long-term care addresses the embolic source, antithrombotic therapy, and cardiovascular risk reduction."
+          },
+          {
+                "id": "surgery-postoperative-venous-thromboembolism-prevention",
+                "englishTitle": "Postoperative Venous Thromboembolism Prevention",
+                "chineseTitle": "Postoperative Venous Thromboembolism Prevention",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中高级",
+                "englishText": "Venous thromboembolism after surgery includes deep vein thrombosis and pulmonary embolism, both of which may cause substantial morbidity or death. Surgical trauma, immobility, venous stasis, inflammation, cancer, obesity, older age, prior thrombosis, thrombophilia, and estrogen exposure increase risk. Prevention begins with individualized risk assessment that balances thrombosis against bleeding. Mechanical methods include early ambulation, graduated compression stockings, and intermittent pneumatic compression devices. Pharmacologic prophylaxis may use low-molecular-weight heparin, unfractionated heparin, fondaparinux, or selected oral anticoagulants depending on procedure type and patient factors. Major orthopedic, cancer, and pelvic operations often require more intensive or extended prophylaxis. Regional anesthesia, renal impairment, active bleeding, thrombocytopenia, and planned reoperation influence drug selection and timing. Clinical surveillance is important because symptoms may be subtle, including calf swelling, unexplained tachycardia, dyspnea, hypoxemia, or pleuritic pain. Protocol-based prevention reduces preventable postoperative events."
+          },
+          {
+                "id": "surgery-gastric-cancer-surgical-principles",
+                "englishTitle": "Gastric Cancer Surgical Principles",
+                "chineseTitle": "Gastric Cancer Surgical Principles",
+                "category": "外科",
+                "sourceCategory": "Surgery",
+                "difficulty": "中高级",
+                "englishText": "Gastric cancer is a malignant epithelial tumor associated with Helicobacter pylori infection, atrophic gastritis, intestinal metaplasia, smoking, high-salt diet, family history, and certain hereditary syndromes. Early disease may be asymptomatic, whereas advanced cancer can cause weight loss, epigastric pain, early satiety, vomiting, anemia, melena, or palpable lymphadenopathy. Diagnosis requires upper endoscopy with biopsy, and staging commonly includes computed tomography, endoscopic ultrasound for selected cases, laparoscopy to detect peritoneal disease, and biomarker testing when systemic therapy is considered. Surgical resection remains central for localized resectable disease. The operation may involve distal, subtotal, or total gastrectomy with appropriate lymphadenectomy and reconstruction. Perioperative or adjuvant chemotherapy improves outcomes in many patients, while chemoradiation or targeted therapy is used in specific contexts. Nutritional assessment, anemia correction, thromboembolism prevention, and postoperative monitoring for leakage, delayed gastric emptying, dumping syndrome, and micronutrient deficiency are essential."
+          },
+          {
+                "id": "obstetrics-and-gynecology-preeclampsia-and-maternal-endothelial-dysfunction",
+                "englishTitle": "Preeclampsia and Maternal Endothelial Dysfunction",
+                "chineseTitle": "Preeclampsia and Maternal Endothelial Dysfunction",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "初中级",
+                "englishText": "Preeclampsia is a pregnancy-specific hypertensive disorder characterized by new-onset hypertension after mid-pregnancy with proteinuria or evidence of maternal organ dysfunction. Abnormal placentation, impaired spiral artery remodeling, antiangiogenic factors, and systemic endothelial dysfunction contribute to vasoconstriction, capillary leak, platelet activation, and reduced organ perfusion. Clinical features may include headache, visual disturbance, epigastric pain, edema, thrombocytopenia, elevated liver enzymes, renal impairment, fetal growth restriction, or pulmonary edema. Diagnosis requires accurate blood pressure measurement and laboratory evaluation, including urine protein assessment, platelet count, creatinine, and liver enzymes. Severe disease may progress to eclampsia, stroke, placental abruption, or maternal death. Management depends on gestational age and severity and includes antihypertensive therapy for severe blood pressure elevation, magnesium sulfate for seizure prophylaxis in high-risk cases, fetal surveillance, and delivery when maternal or fetal risk outweighs prematurity. Postpartum monitoring remains essential."
+          },
+          {
+                "id": "obstetrics-and-gynecology-gestational-diabetes-mellitus",
+                "englishTitle": "Gestational Diabetes Mellitus",
+                "chineseTitle": "Gestational Diabetes Mellitus",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "初中级",
+                "englishText": "Gestational diabetes mellitus is glucose intolerance first recognized during pregnancy and is associated with placental hormone-mediated insulin resistance. Risk factors include obesity, advanced maternal age, prior gestational diabetes, family history of diabetes, polycystic ovary syndrome, and certain ethnic backgrounds. Screening is performed during pregnancy using either a one-step oral glucose tolerance test or a two-step strategy, depending on local practice. Maternal hyperglycemia increases the risk of fetal macrosomia, shoulder dystocia, neonatal hypoglycemia, cesarean delivery, hypertensive disorders, and later type 2 diabetes in both mother and child. Treatment begins with nutrition therapy, physical activity, and glucose self-monitoring. Insulin is commonly used when glycemic targets are not achieved, while selected oral agents may be considered according to guideline and patient factors. Postpartum glucose testing is important because many patients have persistent dysglycemia or future diabetes risk. Long-term prevention includes weight management and regular metabolic follow-up."
+          },
+          {
+                "id": "obstetrics-and-gynecology-ectopic-pregnancy-and-early-diagnosis",
+                "englishTitle": "Ectopic Pregnancy and Early Diagnosis",
+                "chineseTitle": "Ectopic Pregnancy and Early Diagnosis",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "初中级",
+                "englishText": "Ectopic pregnancy occurs when a fertilized ovum implants outside the uterine cavity, most commonly in the fallopian tube. Risk factors include previous ectopic pregnancy, tubal surgery, pelvic inflammatory disease, assisted reproduction, smoking, and intrauterine device failure with pregnancy. Patients may present with amenorrhea, lower abdominal pain, vaginal bleeding, shoulder pain, dizziness, or syncope if rupture and intraperitoneal hemorrhage occur. Diagnosis requires a high index of suspicion, quantitative beta-human chorionic gonadotropin testing, transvaginal ultrasonography, and assessment of hemodynamic stability. The absence of an intrauterine pregnancy above the discriminatory zone should prompt careful evaluation rather than automatic intervention. Stable patients with selected small unruptured ectopic pregnancies may be treated with methotrexate if criteria are met and follow-up is reliable. Surgical management is required for rupture, instability, contraindication to medical therapy, or diagnostic uncertainty. Rh immunoglobulin should be considered for unsensitized Rh-negative patients."
+          },
+          {
+                "id": "obstetrics-and-gynecology-endometriosis-and-chronic-pelvic-pain",
+                "englishTitle": "Endometriosis and Chronic Pelvic Pain",
+                "chineseTitle": "Endometriosis and Chronic Pelvic Pain",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "初中级",
+                "englishText": "Endometriosis is a chronic estrogen-dependent inflammatory condition in which endometrial-like tissue is found outside the uterine cavity. Lesions may involve the ovaries, pelvic peritoneum, uterosacral ligaments, bowel, bladder, or surgical scars. Proposed mechanisms include retrograde menstruation, immune dysregulation, coelomic metaplasia, stem cell migration, and genetic susceptibility. Symptoms include dysmenorrhea, deep dyspareunia, chronic pelvic pain, dyschezia, dysuria, infertility, fatigue, and cyclic exacerbation of pain. Physical examination may reveal uterosacral nodularity, fixed retroverted uterus, adnexal tenderness, or pelvic floor hypertonicity, but findings can be normal. Imaging helps identify endometriomas or deep infiltrating disease, while laparoscopy with histologic confirmation remains definitive in selected cases. Management is individualized and may include nonsteroidal anti-inflammatory drugs, combined hormonal contraceptives, progestins, gonadotropin-releasing hormone analogs, fertility-directed care, pelvic physical therapy, or conservative surgery. Recurrence is common, so long-term planning is important."
+          },
+          {
+                "id": "obstetrics-and-gynecology-uterine-fibroids-and-abnormal-uterine-bleeding",
+                "englishTitle": "Uterine Fibroids and Abnormal Uterine Bleeding",
+                "chineseTitle": "Uterine Fibroids and Abnormal Uterine Bleeding",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "初中级",
+                "englishText": "Uterine fibroids are benign smooth muscle tumors of the myometrium that may be submucosal, intramural, subserosal, or pedunculated. Their growth is influenced by estrogen, progesterone, extracellular matrix deposition, and genetic factors. Many fibroids are asymptomatic, but submucosal or large intramural lesions can cause heavy menstrual bleeding, anemia, pelvic pressure, urinary frequency, constipation, infertility, recurrent pregnancy loss, or pregnancy complications. Evaluation includes history, pelvic examination, complete blood count, pregnancy testing when appropriate, and pelvic ultrasonography. Saline infusion sonography or magnetic resonance imaging may further define cavity distortion or surgical anatomy. Management depends on symptoms, fibroid size and location, age, fertility goals, and preference. Options include iron therapy, tranexamic acid, hormonal therapy, levonorgestrel intrauterine system, gonadotropin-releasing hormone antagonists or agonists, uterine artery embolization, myomectomy, and hysterectomy. Malignancy is uncommon, but rapidly enlarging or atypical masses require careful evaluation."
+          },
+          {
+                "id": "obstetrics-and-gynecology-preterm-labor-and-antenatal-corticosteroids",
+                "englishTitle": "Preterm Labor and Antenatal Corticosteroids",
+                "chineseTitle": "Preterm Labor and Antenatal Corticosteroids",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "初中级",
+                "englishText": "Preterm labor is regular uterine contraction associated with cervical change before term gestation and is a major cause of neonatal morbidity and mortality. Risk factors include prior preterm birth, multiple gestation, short cervix, intrauterine infection, uterine anomalies, bleeding, smoking, and assisted reproduction. Assessment includes gestational dating, contraction pattern, cervical examination, fetal status, membrane status, infection evaluation, and sometimes cervical length measurement or fetal fibronectin testing. Management depends on gestational age, maternal condition, and fetal well-being. Tocolytic therapy may briefly delay delivery to allow transfer to an appropriate facility or completion of fetal maturation therapy. Antenatal corticosteroids reduce respiratory distress and other complications in infants at risk of preterm birth within an appropriate gestational window. Magnesium sulfate may be used for fetal neuroprotection in early preterm birth. Antibiotics are indicated for preterm premature rupture of membranes or group B streptococcal prophylaxis, not for uncomplicated preterm labor alone."
+          },
+          {
+                "id": "obstetrics-and-gynecology-cervical-cancer-screening-and-hpv-prevention",
+                "englishTitle": "Cervical Cancer Screening and HPV Prevention",
+                "chineseTitle": "Cervical Cancer Screening and HPV Prevention",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中级",
+                "englishText": "Cervical cancer is strongly associated with persistent infection by high-risk human papillomavirus types, particularly those that promote oncogenic transformation through viral proteins affecting cell-cycle regulation. Screening detects precancerous cervical intraepithelial neoplasia before invasive cancer develops. Strategies include cytology, high-risk human papillomavirus testing, or cotesting, with intervals based on age, results, immune status, and prior history. Abnormal results may require repeat testing, colposcopy, directed biopsy, or excisional treatment depending on risk. Symptoms of invasive disease can include postcoital bleeding, intermenstrual bleeding, malodorous discharge, pelvic pain, or urinary and rectal symptoms in advanced cases. Prevention relies on prophylactic human papillomavirus vaccination, safe sexual practices, smoking cessation, and organized screening programs. Treatment of invasive cervical cancer depends on stage and may include surgery, chemoradiation, brachytherapy, systemic chemotherapy, immunotherapy, or palliative care. Follow-up should address recurrence surveillance, sexual health, fertility, and psychosocial needs."
+          },
+          {
+                "id": "obstetrics-and-gynecology-polycystic-ovary-syndrome",
+                "englishTitle": "Polycystic Ovary Syndrome",
+                "chineseTitle": "Polycystic Ovary Syndrome",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中级",
+                "englishText": "Polycystic ovary syndrome is a common endocrine disorder characterized by ovulatory dysfunction, hyperandrogenism, and polycystic ovarian morphology after exclusion of related conditions. Insulin resistance and compensatory hyperinsulinemia contribute to ovarian androgen production and metabolic risk. Patients may present with irregular menses, infertility, hirsutism, acne, androgenic alopecia, weight gain, or acanthosis nigricans. Evaluation includes menstrual history, clinical signs of androgen excess, pregnancy testing, thyroid and prolactin assessment when indicated, androgen measurement, and screening for metabolic abnormalities. Ultrasound is useful but not required in all patients. Management depends on reproductive goals and symptom burden. Lifestyle intervention supports weight, cardiometabolic health, and ovulatory function. Combined hormonal contraceptives regulate bleeding and reduce androgenic symptoms, while antiandrogens may be added with reliable contraception. Letrozole is commonly used for ovulation induction in infertility. Long-term care includes monitoring for type 2 diabetes, dyslipidemia, hypertension, endometrial hyperplasia, and mental health concerns."
+          },
+          {
+                "id": "obstetrics-and-gynecology-placenta-previa-and-antepartum-hemorrhage",
+                "englishTitle": "Placenta Previa and Antepartum Hemorrhage",
+                "chineseTitle": "Placenta Previa and Antepartum Hemorrhage",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中级",
+                "englishText": "Placenta previa occurs when placental tissue partially or completely covers the internal cervical os, creating a risk of painless antepartum bleeding. Risk factors include prior cesarean delivery, multiple gestation, advanced maternal age, smoking, assisted reproduction, multiparity, and previous uterine surgery. Transvaginal ultrasonography is safe and provides accurate localization of the placenta. Digital cervical examination should be avoided until previa is excluded because it may provoke severe hemorrhage. Bleeding may be intermittent and unpredictable, requiring assessment of maternal hemodynamic status, fetal well-being, gestational age, hemoglobin concentration, coagulation status, and need for blood products. Management may include observation, activity modification, corticosteroids for fetal lung maturity when preterm delivery is possible, Rh immunoglobulin when indicated, and planned cesarean delivery for persistent previa. Emergency delivery is required for uncontrolled bleeding, maternal instability, or nonreassuring fetal status. Placenta accreta spectrum should be considered when previa coexists with prior cesarean scars."
+          },
+          {
+                "id": "obstetrics-and-gynecology-pelvic-inflammatory-disease",
+                "englishTitle": "Pelvic Inflammatory Disease",
+                "chineseTitle": "Pelvic Inflammatory Disease",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中级",
+                "englishText": "Pelvic inflammatory disease is an ascending infection of the upper female genital tract involving the endometrium, fallopian tubes, ovaries, or pelvic peritoneum. It is commonly associated with sexually transmitted pathogens such as Chlamydia trachomatis and Neisseria gonorrhoeae, but anaerobes, genital mycoplasmas, and vaginal flora may also contribute. Symptoms can include lower abdominal pain, abnormal discharge, fever, dyspareunia, dysuria, intermenstrual bleeding, or adnexal tenderness. Because clinical findings are often nonspecific, treatment should not be delayed when reproductive-age patients have pelvic pain with cervical motion, uterine, or adnexal tenderness and no better explanation. Diagnostic evaluation may include pregnancy testing, nucleic acid testing for sexually transmitted infections, inflammatory markers, pelvic ultrasound, and assessment for tubo-ovarian abscess. Empiric broad-spectrum antibiotics should cover likely organisms. Partners require evaluation and treatment when sexually transmitted infection is suspected. Delayed therapy increases the risk of infertility, ectopic pregnancy, and chronic pelvic pain."
+          },
+          {
+                "id": "obstetrics-and-gynecology-postpartum-hemorrhage",
+                "englishTitle": "Postpartum Hemorrhage",
+                "chineseTitle": "Postpartum Hemorrhage",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中级",
+                "englishText": "Postpartum hemorrhage is excessive bleeding after birth and remains a leading cause of maternal morbidity and mortality worldwide. The major causes are commonly remembered as uterine atony, retained placental tissue, genital tract trauma, and coagulation disorders. Risk factors include prolonged labor, overdistended uterus, chorioamnionitis, operative delivery, placenta previa, placental abruption, prior hemorrhage, and uterine fibroids, but bleeding can occur without warning. Clinical management requires rapid estimation of blood loss, assessment of vital signs, uterine tone, and identification of the bleeding source. Initial treatment includes uterine massage, oxytocin, intravenous access, fluid resuscitation, laboratory testing, and activation of a massive transfusion protocol when indicated. Additional uterotonic agents, tranexamic acid, manual removal of retained tissue, repair of lacerations, balloon tamponade, uterine artery embolization, compression sutures, or hysterectomy may be required. Early team communication and simulation-based preparation improve response to severe hemorrhage."
+          },
+          {
+                "id": "obstetrics-and-gynecology-premature-rupture-of-membranes",
+                "englishTitle": "Premature Rupture of Membranes",
+                "chineseTitle": "Premature Rupture of Membranes",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中级",
+                "englishText": "Premature rupture of membranes refers to rupture of the fetal membranes before the onset of labor, while preterm premature rupture occurs before term gestation. It may result from membrane weakness, infection, cervical insufficiency, bleeding, smoking, multiple gestation, or previous preterm birth. Patients typically report a sudden gush or continuous leakage of clear vaginal fluid. Diagnosis is based on sterile speculum examination, visualization of fluid, pH testing, ferning, or biochemical tests when findings are uncertain. Digital cervical examination should be minimized unless delivery is imminent because it may increase infection risk. Management depends on gestational age, fetal status, infection, labor, and contraindications to expectant care. Term rupture is usually managed with induction or planned delivery. Preterm rupture may require hospitalization, latency antibiotics, antenatal corticosteroids, fetal monitoring, and magnesium sulfate for neuroprotection when appropriate. Chorioamnionitis, placental abruption, nonreassuring fetal status, or advanced labor requires delivery."
+          },
+          {
+                "id": "obstetrics-and-gynecology-ovarian-cancer-and-adnexal-mass-evaluation",
+                "englishTitle": "Ovarian Cancer and Adnexal Mass Evaluation",
+                "chineseTitle": "Ovarian Cancer and Adnexal Mass Evaluation",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中级",
+                "englishText": "Epithelial ovarian cancer often presents at an advanced stage because early symptoms are vague and no screening test has sufficient accuracy for average-risk asymptomatic women. Symptoms may include abdominal bloating, early satiety, pelvic or abdominal pain, urinary frequency, weight change, ascites, or bowel habit alteration. Evaluation of an adnexal mass includes age, menopausal status, family history, physical examination, transvaginal ultrasonography, and tumor markers such as cancer antigen 125 in appropriate contexts. Suspicious features include solid components, papillary projections, ascites, bilateral lesions, nodularity, and increased vascularity. Patients with high-risk findings should be referred to gynecologic oncology because optimal cytoreductive surgery improves outcomes. Treatment commonly involves surgical staging or debulking followed by platinum-based chemotherapy, with maintenance therapy considered for selected molecular profiles. Genetic testing for BRCA mutations and homologous recombination deficiency informs therapy and family counseling. Benign masses require individualized follow-up or surgery based on symptoms and risk."
+          },
+          {
+                "id": "obstetrics-and-gynecology-menopause-and-hormone-therapy",
+                "englishTitle": "Menopause and Hormone Therapy",
+                "chineseTitle": "Menopause and Hormone Therapy",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中级",
+                "englishText": "Menopause is defined by permanent cessation of menstruation due to loss of ovarian follicular activity and is diagnosed clinically after twelve months of amenorrhea in the appropriate age range. Declining estrogen levels may cause vasomotor symptoms, sleep disturbance, mood changes, urogenital atrophy, dyspareunia, urinary symptoms, and accelerated bone loss. Evaluation should consider pregnancy, thyroid disease, hyperprolactinemia, medication effects, and premature ovarian insufficiency when presentation is atypical. Menopausal hormone therapy is the most effective treatment for moderate to severe vasomotor symptoms and can prevent bone loss, but risks and benefits depend on age, time since menopause, route, dose, uterus status, thromboembolic risk, breast cancer risk, and cardiovascular history. Patients with an intact uterus require endometrial protection with a progestogen when systemic estrogen is used. Nonhormonal options include selective serotonin reuptake inhibitors, serotonin-norepinephrine reuptake inhibitors, gabapentin, clonidine, and lifestyle measures. Local vaginal estrogen may treat genitourinary symptoms."
+          },
+          {
+                "id": "obstetrics-and-gynecology-infertility-evaluation-in-couples",
+                "englishTitle": "Infertility Evaluation in Couples",
+                "chineseTitle": "Infertility Evaluation in Couples",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中高级",
+                "englishText": "Infertility is commonly defined as failure to achieve pregnancy after twelve months of regular unprotected intercourse, or after six months when the female partner is older or risk factors are present. Causes may involve ovulatory dysfunction, diminished ovarian reserve, tubal disease, endometriosis, uterine abnormalities, male factor infertility, or unexplained mechanisms. Evaluation should include reproductive history, menstrual pattern, prior pregnancy outcomes, pelvic infection, surgery, medications, occupational exposures, sexual timing, and semen analysis. Assessment of ovulation may use menstrual history, mid-luteal progesterone, or ovulation predictor testing. Ovarian reserve markers, tubal patency testing, uterine cavity assessment, and endocrine evaluation are selected according to clinical context. Management depends on diagnosis and may include lifestyle optimization, treatment of thyroid or prolactin disorders, ovulation induction, intrauterine insemination, surgery for selected anatomic disease, or assisted reproductive technology. Counseling should address age-related fertility decline, genetic risk, emotional stress, cost, and realistic success rates."
+          },
+          {
+                "id": "obstetrics-and-gynecology-postpartum-depression",
+                "englishTitle": "Postpartum Depression",
+                "chineseTitle": "Postpartum Depression",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中高级",
+                "englishText": "Postpartum depression is a mood disorder occurring after childbirth and is distinct from transient postpartum blues. Biological vulnerability, sleep deprivation, psychosocial stress, prior depression, anxiety, intimate partner violence, obstetric complications, and limited support increase risk. Symptoms include persistent sadness, anhedonia, guilt, irritability, fatigue, appetite change, impaired concentration, anxiety, sleep disturbance unrelated to infant care, and difficulty bonding with the baby. Severe cases may involve suicidal ideation, thoughts of harm, or psychotic features requiring urgent intervention. Screening with validated questionnaires during pregnancy and postpartum improves detection, but diagnosis requires clinical assessment and evaluation of safety. Treatment includes psychoeducation, sleep support, psychotherapy, family involvement, and pharmacotherapy when symptoms are moderate to severe or persistent. Selective serotonin reuptake inhibitors are commonly used, with attention to breastfeeding, prior response, and adverse effects. Untreated illness can impair maternal functioning, infant development, and family relationships, so follow-up must be proactive."
+          },
+          {
+                "id": "obstetrics-and-gynecology-ovarian-torsion",
+                "englishTitle": "Ovarian Torsion",
+                "chineseTitle": "Ovarian Torsion",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中高级",
+                "englishText": "Ovarian torsion occurs when the ovary twists around its vascular pedicle, compromising venous and lymphatic drainage and eventually arterial perfusion. It is more likely when an ovarian cyst or mass increases ovarian size, but it can occur in normal ovaries, particularly in children, adolescents, or pregnancy. Patients usually present with sudden unilateral pelvic pain, nausea, vomiting, adnexal tenderness, and sometimes low-grade fever or leukocytosis. Pain may be intermittent if torsion detorses spontaneously. Transvaginal or transabdominal ultrasound with Doppler flow is the preferred initial imaging test, but normal blood flow does not exclude torsion because dual blood supply may persist. Diagnosis is ultimately surgical when suspicion remains high. Prompt laparoscopy with detorsion aims to preserve ovarian function, even when the ovary appears dark or edematous. Cystectomy may be performed when feasible. Delayed treatment increases the risk of necrosis, infection, loss of fertility, and peritonitis."
+          },
+          {
+                "id": "obstetrics-and-gynecology-shoulder-dystocia-during-delivery",
+                "englishTitle": "Shoulder Dystocia During Delivery",
+                "chineseTitle": "Shoulder Dystocia During Delivery",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中高级",
+                "englishText": "Shoulder dystocia is an obstetric emergency in which the fetal shoulders fail to deliver after the head because the anterior shoulder becomes impacted behind the maternal pubic symphysis, or less commonly the posterior shoulder is obstructed. Risk factors include fetal macrosomia, diabetes, obesity, prolonged second stage, operative vaginal delivery, prior shoulder dystocia, and post-term pregnancy, but prediction is poor. Recognition occurs when routine traction fails, the fetal head retracts against the perineum, or delivery is not progressing. Management requires calling for help, noting the time, avoiding excessive downward traction, and performing sequential maneuvers. McRoberts positioning, suprapubic pressure, delivery of the posterior arm, rotational maneuvers, and all-fours positioning may relieve impaction. Neonatal risks include brachial plexus injury, clavicle fracture, hypoxia, and death, while maternal risks include postpartum hemorrhage and severe perineal trauma. Documentation and debriefing are essential after delivery."
+          },
+          {
+                "id": "obstetrics-and-gynecology-adenomyosis-and-dysmenorrhea",
+                "englishTitle": "Adenomyosis and Dysmenorrhea",
+                "chineseTitle": "Adenomyosis and Dysmenorrhea",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中高级",
+                "englishText": "Adenomyosis is a benign gynecologic disorder in which endometrial glands and stroma are present within the myometrium, causing uterine enlargement, smooth muscle hypertrophy, and chronic inflammation. It most often affects reproductive-age or perimenopausal women and may coexist with fibroids or endometriosis. Symptoms include heavy menstrual bleeding, progressive dysmenorrhea, chronic pelvic pain, dyspareunia, infertility, or recurrent pregnancy loss, although some patients are asymptomatic. On examination the uterus may be diffusely enlarged, tender, and globular. Transvaginal ultrasonography and magnetic resonance imaging can identify myometrial cysts, asymmetric wall thickening, fan-shaped shadowing, or junctional zone abnormalities. Treatment depends on symptom severity, age, fertility goals, and desire for uterine preservation. Options include nonsteroidal anti-inflammatory drugs, tranexamic acid, hormonal contraceptives, progestins, levonorgestrel intrauterine system, gonadotropin-releasing hormone analogs, uterine-sparing procedures in selected cases, and hysterectomy for definitive treatment when childbearing is complete."
+          },
+          {
+                "id": "obstetrics-and-gynecology-group-b-streptococcus-in-pregnancy",
+                "englishTitle": "Group B Streptococcus in Pregnancy",
+                "chineseTitle": "Group B Streptococcus in Pregnancy",
+                "category": "妇产科",
+                "sourceCategory": "Obstetrics and Gynecology",
+                "difficulty": "中高级",
+                "englishText": "Group B Streptococcus is a common colonizer of the gastrointestinal and genital tracts and can cause early-onset neonatal sepsis, pneumonia, and meningitis. Maternal colonization is usually asymptomatic, but vertical transmission may occur during labor or after membrane rupture. Screening with vaginal-rectal culture late in pregnancy is used in many settings to identify candidates for intrapartum antibiotic prophylaxis. Prophylaxis is also indicated for patients with prior infant affected by invasive group B streptococcal disease, group B streptococcal bacteriuria during the current pregnancy, or unknown culture status with risk factors such as preterm labor, prolonged rupture of membranes, or intrapartum fever. Penicillin is the preferred agent, with alternatives chosen according to allergy history and susceptibility testing. Antibiotics given before labor do not reliably eradicate colonization. Neonatal management depends on gestational age, maternal prophylaxis adequacy, clinical appearance, and signs of infection. Prevention programs have reduced early-onset disease substantially."
+          },
+          {
+                "id": "pediatrics-bronchiolitis-in-infants",
+                "englishTitle": "Bronchiolitis in Infants",
+                "chineseTitle": "Bronchiolitis in Infants",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "初中级",
+                "englishText": "Bronchiolitis is an acute viral lower respiratory tract infection affecting infants and young children, most often caused by respiratory syncytial virus. Infection produces airway epithelial necrosis, edema, mucus plugging, and small airway obstruction, leading to wheezing, crackles, cough, tachypnea, and increased work of breathing. Symptoms often begin with rhinorrhea and low-grade fever before progressing to respiratory distress. Diagnosis is clinical and does not usually require routine chest radiography or viral testing in uncomplicated cases. Assessment should focus on hydration, feeding ability, oxygen saturation, apnea risk, prematurity, underlying cardiopulmonary disease, and caregiver capacity. Treatment is mainly supportive, including nasal suctioning, hydration, and supplemental oxygen when needed. Routine bronchodilators, corticosteroids, and antibiotics are not recommended for typical cases without another indication. Severe disease may require high-flow nasal cannula, continuous positive airway pressure, or intensive care. Prevention includes hand hygiene, avoidance of smoke exposure, and monoclonal antibody prophylaxis for selected high-risk infants."
+          },
+          {
+                "id": "pediatrics-pediatric-asthma-and-airway-inflammation",
+                "englishTitle": "Pediatric Asthma and Airway Inflammation",
+                "chineseTitle": "Pediatric Asthma and Airway Inflammation",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "初中级",
+                "englishText": "Asthma in children is a chronic inflammatory airway disease characterized by variable airflow limitation, bronchial hyperresponsiveness, and recurrent respiratory symptoms. Triggers include viral infections, allergens, exercise, tobacco smoke, air pollution, cold air, and emotional stress. Symptoms include wheeze, cough, chest tightness, nocturnal awakening, and shortness of breath, often with variability over time. Diagnosis is based on clinical pattern, response to bronchodilator therapy, and spirometry when age appropriate. Controller therapy depends on severity and risk of exacerbations, with inhaled corticosteroids forming the foundation of anti-inflammatory treatment. Reliever medication provides rapid symptom relief, and some regimens use inhaled corticosteroid-formoterol in selected age groups. Education on inhaler technique, spacer use, adherence, trigger reduction, written action plans, and recognition of severe attacks is essential. Acute exacerbations require assessment of speech, respiratory rate, oxygen saturation, accessory muscle use, and response to inhaled bronchodilators and systemic corticosteroids."
+          },
+          {
+                "id": "pediatrics-neonatal-jaundice-and-hyperbilirubinemia",
+                "englishTitle": "Neonatal Jaundice and Hyperbilirubinemia",
+                "chineseTitle": "Neonatal Jaundice and Hyperbilirubinemia",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "初中级",
+                "englishText": "Neonatal jaundice is caused by accumulation of bilirubin and is common during the first week of life because newborns have increased red blood cell turnover, immature hepatic conjugation, and enhanced enterohepatic circulation. Physiologic jaundice is usually mild, but pathologic hyperbilirubinemia may result from hemolytic disease, glucose-6-phosphate dehydrogenase deficiency, infection, bruising, cephalohematoma, prematurity, dehydration, or breastfeeding difficulties. Evaluation requires gestational age, postnatal age in hours, bilirubin measurement, feeding assessment, weight loss, blood type compatibility, direct antiglobulin test when indicated, and examination for signs of illness. Severe unconjugated hyperbilirubinemia can cross the blood-brain barrier and cause acute bilirubin encephalopathy or kernicterus. Phototherapy converts bilirubin into water-soluble isomers that can be excreted without conjugation. Exchange transfusion is reserved for dangerously high levels or severe hemolysis. Conjugated hyperbilirubinemia is never physiologic and requires evaluation for cholestasis, biliary atresia, infection, or metabolic disease."
+          },
+          {
+                "id": "pediatrics-acute-gastroenteritis-and-dehydration",
+                "englishTitle": "Acute Gastroenteritis and Dehydration",
+                "chineseTitle": "Acute Gastroenteritis and Dehydration",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "初中级",
+                "englishText": "Acute gastroenteritis in children is most often caused by viral pathogens, including rotavirus and norovirus, but bacteria and parasites may be responsible in selected settings. Clinical manifestations include diarrhea, vomiting, fever, abdominal cramps, and reduced oral intake. The major clinical risk is dehydration, particularly in infants and young children. Assessment should include mental status, thirst, mucous membrane moisture, capillary refill, skin turgor, heart rate, urine output, weight change, and signs of shock. Most children with mild or moderate dehydration can be treated with oral rehydration solution containing appropriate concentrations of glucose and electrolytes. Continued feeding supports intestinal recovery, and breastfeeding should be maintained. Intravenous fluids are indicated for severe dehydration, altered consciousness, persistent vomiting preventing oral therapy, or circulatory compromise. Antibiotics are not routinely required and should be reserved for specific bacterial infections or high-risk hosts. Vaccination has substantially reduced severe rotavirus disease in many populations."
+          },
+          {
+                "id": "pediatrics-congenital-heart-disease-and-cyanosis",
+                "englishTitle": "Congenital Heart Disease and Cyanosis",
+                "chineseTitle": "Congenital Heart Disease and Cyanosis",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "初中级",
+                "englishText": "Cyanotic congenital heart disease results from structural cardiac defects that permit right-to-left shunting or inadequate pulmonary blood flow, causing systemic arterial desaturation. Important causes include tetralogy of Fallot, transposition of the great arteries, tricuspid atresia, total anomalous pulmonary venous connection, truncus arteriosus, and critical pulmonary stenosis. Newborns may present with central cyanosis, tachypnea, poor feeding, murmur, weak pulses, differential oxygen saturation, or shock. Pulse oximetry screening helps detect critical lesions before discharge, but a normal screen does not exclude all congenital heart disease. Evaluation includes physical examination, preductal and postductal oxygen saturation, chest radiography, electrocardiography, echocardiography, and assessment for metabolic or pulmonary causes of cyanosis. Prostaglandin E1 should be considered when ductal-dependent circulation is suspected, while maintaining temperature, glucose, ventilation, and perfusion. Definitive management requires pediatric cardiology and cardiac surgery or catheter-based intervention, followed by long-term surveillance for residual lesions and developmental outcomes."
+          },
+          {
+                "id": "pediatrics-kawasaki-disease-and-coronary-artery-risk",
+                "englishTitle": "Kawasaki Disease and Coronary Artery Risk",
+                "chineseTitle": "Kawasaki Disease and Coronary Artery Risk",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "初中级",
+                "englishText": "Kawasaki disease is an acute medium-vessel vasculitis of childhood and an important cause of acquired coronary artery disease. It typically affects children under five years of age and presents with persistent fever plus features such as bilateral nonpurulent conjunctivitis, oral mucosal changes, polymorphous rash, extremity swelling or peeling, and cervical lymphadenopathy. Incomplete presentations are common, especially in infants, and require careful evaluation when fever persists without another explanation. Laboratory findings may include elevated inflammatory markers, thrombocytosis after the first week, anemia, sterile pyuria, or elevated liver enzymes. Echocardiography is used to assess coronary artery dilation, aneurysm formation, ventricular function, and pericardial effusion. Treatment with intravenous immunoglobulin and aspirin reduces coronary complications when given early. Patients with persistent or recurrent fever after initial therapy may need additional anti-inflammatory treatment. Long-term follow-up depends on coronary artery status and may include antiplatelet therapy, activity guidance, and cardiology surveillance."
+          },
+          {
+                "id": "pediatrics-pediatric-seizures-and-febrile-convulsions",
+                "englishTitle": "Pediatric Seizures and Febrile Convulsions",
+                "chineseTitle": "Pediatric Seizures and Febrile Convulsions",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中级",
+                "englishText": "Febrile seizures are convulsions occurring in young children with fever and without central nervous system infection, metabolic disturbance, or prior afebrile seizures. Simple febrile seizures are generalized, last less than fifteen minutes, and do not recur within twenty-four hours. Complex febrile seizures are focal, prolonged, or recurrent. Most simple febrile seizures have an excellent prognosis and do not require routine neuroimaging, electroencephalography, or long-term antiseizure therapy. Evaluation should focus on identifying the source of fever and excluding meningitis or encephalitis when signs such as neck stiffness, persistent altered consciousness, petechiae, bulging fontanelle, or toxic appearance are present. Acute management includes airway protection, positioning, glucose assessment when indicated, and benzodiazepines for seizures lasting more than several minutes. Parents should receive clear counseling on recurrence risk, first aid, medication safety, and when to seek emergency care. Chronic epilepsy risk is higher after complex features or underlying neurodevelopmental abnormalities."
+          },
+          {
+                "id": "pediatrics-nephrotic-syndrome-in-children",
+                "englishTitle": "Nephrotic Syndrome in Children",
+                "chineseTitle": "Nephrotic Syndrome in Children",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中级",
+                "englishText": "Nephrotic syndrome in children is defined by heavy proteinuria, hypoalbuminemia, edema, and often hyperlipidemia. Minimal change disease is the most common cause in young children and usually responds to corticosteroid therapy. Edema results from urinary albumin loss, reduced plasma oncotic pressure, renal sodium retention, and activation of neurohormonal pathways. Patients may present with periorbital swelling, dependent edema, ascites, weight gain, frothy urine, or reduced urine output. Evaluation includes urinalysis, urine protein-to-creatinine ratio, serum albumin, creatinine, cholesterol, complement levels when indicated, and assessment for secondary causes. Complications include infection, thrombosis, hypovolemia, acute kidney injury, and medication toxicity. Initial treatment for typical steroid-sensitive disease includes corticosteroids, salt restriction, edema management, vaccination review, and infection precautions. Kidney biopsy is considered for atypical features such as gross hematuria, low complement, hypertension, impaired renal function, very young age, or steroid resistance. Relapses require structured follow-up."
+          },
+          {
+                "id": "pediatrics-pediatric-iron-deficiency-anemia",
+                "englishTitle": "Pediatric Iron Deficiency Anemia",
+                "chineseTitle": "Pediatric Iron Deficiency Anemia",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中级",
+                "englishText": "Iron deficiency anemia is a common nutritional disorder in children and results from inadequate intake, increased requirements, impaired absorption, or chronic blood loss. Infants, toddlers, adolescents, and children with restricted diets are particularly vulnerable. Iron is required for hemoglobin synthesis, myelination, immune function, and neurodevelopment. Symptoms may include pallor, fatigue, irritability, poor feeding, pica, tachycardia, exertional dyspnea, or impaired attention, although mild cases may be asymptomatic. Laboratory findings typically include low hemoglobin, microcytosis, hypochromia, increased red cell distribution width, low ferritin, and low transferrin saturation. Management includes identifying the cause, improving dietary iron intake, limiting excessive cow's milk in toddlers, and prescribing oral iron with counseling about adherence and gastrointestinal side effects. Hemoglobin should rise after effective therapy, but treatment continues after correction to replenish stores. Lack of response should prompt reassessment for poor adherence, incorrect diagnosis, malabsorption, inflammation, or occult bleeding."
+          },
+          {
+                "id": "pediatrics-childhood-obesity-and-metabolic-health",
+                "englishTitle": "Childhood Obesity and Metabolic Health",
+                "chineseTitle": "Childhood Obesity and Metabolic Health",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中级",
+                "englishText": "Childhood obesity is a chronic disease influenced by genetic susceptibility, intrauterine factors, diet, physical activity, sleep, psychosocial stress, medications, and environmental conditions. It is associated with insulin resistance, dyslipidemia, hypertension, metabolic dysfunction-associated steatotic liver disease, obstructive sleep apnea, orthopedic problems, early puberty, depression, and persistence of obesity into adulthood. Assessment should include body mass index percentile, growth trajectory, family history, diet pattern, physical activity, sleep duration, screen time, blood pressure, and evaluation for obesity-related comorbidities. Laboratory screening may include fasting lipids, glucose or glycated hemoglobin, and liver enzymes depending on age and risk. Management should be family-centered, nonstigmatizing, and developmentally appropriate. Effective interventions combine nutrition counseling, reduced intake of sugar-sweetened beverages and ultra-processed foods, increased physical activity, adequate sleep, behavioral strategies, and treatment of comorbidities. Pharmacotherapy or metabolic surgery may be considered for selected adolescents with severe obesity under specialist supervision."
+          },
+          {
+                "id": "pediatrics-type-1-diabetes-in-children",
+                "englishTitle": "Type 1 Diabetes in Children",
+                "chineseTitle": "Type 1 Diabetes in Children",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中级",
+                "englishText": "Type 1 diabetes is an autoimmune disorder characterized by destruction of pancreatic beta cells and absolute insulin deficiency. Children may present with polyuria, polydipsia, weight loss, fatigue, blurred vision, nocturnal enuresis, or diabetic ketoacidosis with vomiting, abdominal pain, dehydration, Kussmaul respiration, and altered mental status. Diagnosis is based on hyperglycemia with symptoms, glycated hemoglobin, glucose testing, and often pancreatic autoantibodies to support classification. Management requires lifelong insulin replacement using multiple daily injections or pump therapy, blood glucose monitoring or continuous glucose monitoring, carbohydrate counting, nutrition education, exercise planning, and prevention of hypoglycemia. Families need training in sick-day rules, ketone testing, glucagon use, school care plans, and psychosocial adaptation. Acute diabetic ketoacidosis requires careful fluid replacement, insulin infusion, electrolyte monitoring, and prevention of cerebral injury. Long-term care includes screening for thyroid disease, celiac disease, retinopathy, nephropathy, neuropathy, dyslipidemia, and emotional distress."
+          },
+          {
+                "id": "pediatrics-pediatric-pneumonia",
+                "englishTitle": "Pediatric Pneumonia",
+                "chineseTitle": "Pediatric Pneumonia",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中级",
+                "englishText": "Pediatric community-acquired pneumonia is an infection of the lung parenchyma caused by viruses, typical bacteria, atypical bacteria, or mixed pathogens. Age, vaccination status, season, exposure history, and comorbid illness influence the likely cause. Symptoms may include fever, cough, tachypnea, chest pain, abdominal pain, poor feeding, grunting, nasal flaring, retractions, or hypoxemia. Tachypnea is an important clinical sign, but no single finding reliably distinguishes viral from bacterial disease. Diagnosis is often clinical in outpatient settings, while chest radiography is used for severe illness, hypoxemia, complications, or uncertain diagnosis. Treatment includes supportive care, antipyretics, hydration, oxygen when needed, and empiric antibiotics when bacterial pneumonia is suspected. Amoxicillin is commonly used for uncomplicated pneumococcal disease in immunized children, with alternatives based on age and resistance patterns. Hospitalization is indicated for respiratory distress, inability to maintain hydration, hypoxemia, young age, serious comorbidity, or unreliable follow-up."
+          },
+          {
+                "id": "pediatrics-sepsis-in-children",
+                "englishTitle": "Sepsis in Children",
+                "chineseTitle": "Sepsis in Children",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中级",
+                "englishText": "Pediatric sepsis is life-threatening organ dysfunction caused by infection and an abnormal host response. Infants and children may deteriorate rapidly, and early signs can be subtle. Clinical features include fever or hypothermia, tachycardia, tachypnea, poor perfusion, altered mental status, prolonged capillary refill, weak pulses, mottled skin, oliguria, hypotension, or respiratory distress. Common sources include pneumonia, meningitis, urinary tract infection, intra-abdominal infection, skin infection, and catheter-related bloodstream infection. Management emphasizes rapid recognition, measurement of lactate when available, cultures that do not delay therapy, broad-spectrum antimicrobials, and fluid resuscitation tailored to perfusion and the risk of fluid overload. Vasoactive support is required when shock persists after initial resuscitation. Age-specific physiology matters because hypotension is often a late sign in children. Source control, glucose and calcium correction, respiratory support, and intensive monitoring may be necessary. Survivors may need rehabilitation for weakness, neurocognitive problems, and psychological stress."
+          },
+          {
+                "id": "pediatrics-meningitis-in-infants-and-children",
+                "englishTitle": "Meningitis in Infants and Children",
+                "chineseTitle": "Meningitis in Infants and Children",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中级",
+                "englishText": "Meningitis is inflammation of the meninges caused by bacterial, viral, fungal, or noninfectious processes. Bacterial meningitis is a medical emergency because delayed treatment increases the risk of death, hearing loss, seizures, hydrocephalus, and neurodevelopmental impairment. Symptoms vary by age. Infants may have fever, poor feeding, irritability, lethargy, bulging fontanelle, vomiting, apnea, or seizures, while older children may present with headache, photophobia, neck stiffness, altered mental status, and petechial rash. Evaluation includes blood cultures, inflammatory markers, lumbar puncture for cerebrospinal fluid analysis when safe, and neuroimaging before lumbar puncture only when specific risk factors are present. Empiric antibiotics should be started promptly if bacterial meningitis is suspected and should cover age-related pathogens. Adjunctive corticosteroids may be used in selected cases. Viral meningitis is often self-limited, but herpes simplex infection requires antiviral therapy. Prevention relies on vaccination and chemoprophylaxis for certain contacts."
+          },
+          {
+                "id": "pediatrics-acute-otitis-media",
+                "englishTitle": "Acute Otitis Media",
+                "chineseTitle": "Acute Otitis Media",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中高级",
+                "englishText": "Acute otitis media is a common childhood infection involving inflammation and effusion of the middle ear, usually following viral upper respiratory infection and eustachian tube dysfunction. Streptococcus pneumoniae, nontypeable Haemophilus influenzae, Moraxella catarrhalis, and respiratory viruses are frequent pathogens. Symptoms include ear pain, fever, irritability, sleep disturbance, decreased hearing, otorrhea, or poor feeding. Diagnosis requires acute symptoms plus otoscopic evidence such as bulging tympanic membrane, middle ear effusion, decreased mobility, erythema, or perforation with discharge. Overdiagnosis can lead to unnecessary antibiotic use, so careful examination is important. Pain control with acetaminophen or ibuprofen is essential. Immediate antibiotics are recommended for severe disease, very young children, bilateral infection in selected age groups, or otorrhea, while observation may be appropriate for mild cases with reliable follow-up. Recurrent disease may require hearing assessment, evaluation for risk factors, or tympanostomy tube consideration."
+          },
+          {
+                "id": "pediatrics-urinary-tract-infection-in-children",
+                "englishTitle": "Urinary Tract Infection in Children",
+                "chineseTitle": "Urinary Tract Infection in Children",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中高级",
+                "englishText": "Urinary tract infection in children may involve the bladder or kidneys and can lead to renal scarring when pyelonephritis is recurrent or associated with urinary tract abnormalities. Infants may present with fever, poor feeding, vomiting, jaundice, irritability, or failure to thrive, while older children may report dysuria, frequency, urgency, abdominal pain, flank pain, or new incontinence. Diagnosis requires both pyuria and significant bacterial growth from an appropriately collected urine specimen. Bag specimens are useful for screening but not for culture confirmation. Empiric antibiotics should consider age, illness severity, local resistance, and ability to tolerate oral medication. Febrile or toxic-appearing infants may require parenteral therapy and evaluation for bacteremia. Renal and bladder ultrasound is often used after febrile urinary tract infection in young children or recurrent cases. Voiding dysfunction, constipation, vesicoureteral reflux, and anatomic obstruction should be considered when infections recur. Hydration and follow-up culture decisions are individualized."
+          },
+          {
+                "id": "pediatrics-henoch-schonlein-purpura",
+                "englishTitle": "Henoch-Schonlein Purpura",
+                "chineseTitle": "Henoch-Schonlein Purpura",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中高级",
+                "englishText": "Henoch-Schonlein purpura, also called immunoglobulin A vasculitis, is a small-vessel vasculitis most common in children. It often follows an upper respiratory infection and is characterized by palpable purpura without thrombocytopenia, arthralgia or arthritis, abdominal pain, and renal involvement. The rash typically affects the lower extremities and buttocks. Gastrointestinal manifestations may include colicky pain, vomiting, gastrointestinal bleeding, or intussusception. Renal disease ranges from microscopic hematuria and mild proteinuria to nephritic or nephrotic features. Diagnosis is usually clinical, supported by urinalysis, blood pressure measurement, renal function testing, complete blood count, and evaluation for abdominal complications when symptoms are significant. Most cases are self-limited and require supportive care with hydration, analgesia, and monitoring. Corticosteroids may reduce severe abdominal or joint symptoms but do not reliably prevent nephritis. Long-term follow-up focuses on blood pressure, urinalysis, and proteinuria because renal complications determine prognosis."
+          },
+          {
+                "id": "pediatrics-neonatal-respiratory-distress-syndrome",
+                "englishTitle": "Neonatal Respiratory Distress Syndrome",
+                "chineseTitle": "Neonatal Respiratory Distress Syndrome",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中高级",
+                "englishText": "Neonatal respiratory distress syndrome is caused by surfactant deficiency and structural immaturity of the lungs, primarily affecting preterm infants. Without adequate surfactant, alveoli collapse at end expiration, lung compliance falls, work of breathing increases, and hypoxemia develops. Clinical signs include tachypnea, grunting, nasal flaring, intercostal retractions, cyanosis, and increasing oxygen requirement soon after birth. Risk is higher with prematurity, maternal diabetes, cesarean delivery without labor, male sex, and perinatal asphyxia. Antenatal corticosteroids given to mothers at risk of preterm birth accelerate fetal lung maturation and reduce neonatal complications. Diagnosis is based on clinical presentation, blood gas assessment, oxygen need, and chest radiography showing low lung volume and diffuse reticulogranular appearance when imaging is obtained. Management includes thermal support, gentle ventilation, continuous positive airway pressure, oxygen titration, surfactant replacement when indicated, and prevention of complications such as pneumothorax, bronchopulmonary dysplasia, infection, and intraventricular hemorrhage."
+          },
+          {
+                "id": "pediatrics-attention-deficit-hyperactivity-disorder",
+                "englishTitle": "Attention-Deficit Hyperactivity Disorder",
+                "chineseTitle": "Attention-Deficit Hyperactivity Disorder",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中高级",
+                "englishText": "Attention-deficit hyperactivity disorder is a neurodevelopmental disorder characterized by developmentally inappropriate inattention, hyperactivity, and impulsivity that impair functioning across settings. Symptoms may include difficulty sustaining attention, disorganization, forgetfulness, excessive talking, fidgeting, interrupting others, and poor task completion. Diagnosis requires a comprehensive clinical assessment, information from parents and teachers, symptom duration, age of onset, functional impairment, and exclusion of alternative explanations such as sleep disorders, anxiety, depression, learning disability, hearing problems, trauma, or thyroid disease. Comorbid oppositional behavior, tic disorders, autism spectrum disorder, and substance use risk should be considered. Treatment is multimodal and may include parent training, classroom accommodations, behavioral interventions, and medication. Stimulant medications have strong evidence for reducing core symptoms, while nonstimulant options are useful in selected patients. Monitoring includes appetite, sleep, blood pressure, heart rate, growth, mood, diversion risk, and academic or social progress. Shared decision-making with families is essential."
+          },
+          {
+                "id": "pediatrics-pediatric-anaphylaxis",
+                "englishTitle": "Pediatric Anaphylaxis",
+                "chineseTitle": "Pediatric Anaphylaxis",
+                "category": "儿科",
+                "sourceCategory": "Pediatrics",
+                "difficulty": "中高级",
+                "englishText": "Anaphylaxis is an acute, potentially life-threatening systemic hypersensitivity reaction involving mast cell and basophil mediator release. In children, common triggers include foods, insect stings, medications, latex, and exercise-associated exposures. Clinical features may involve urticaria, angioedema, flushing, wheeze, stridor, cough, vomiting, abdominal pain, hypotension, syncope, or sudden behavioral change in young children. Skin findings may be absent, so diagnosis depends on recognition of multisystem involvement or rapid respiratory or cardiovascular compromise after exposure to a likely allergen. Intramuscular epinephrine into the mid-anterolateral thigh is the first-line treatment and should not be delayed. Additional care includes airway assessment, oxygen, intravenous fluids for shock, inhaled bronchodilators for bronchospasm, and observation for biphasic reactions. Antihistamines and corticosteroids may relieve some symptoms but do not replace epinephrine. Discharge planning includes trigger avoidance, epinephrine auto-injector prescription, written action plan, caregiver education, and allergy referral."
+          }
+    ];
+
+    const chineseTitleMap = {
+          "internal-medicine-hypertension-management-in-elderly-patients": "老年高血压管理",
+          "internal-medicine-acute-coronary-syndrome-and-plaque-rupture": "急性冠脉综合征与斑块破裂",
+          "internal-medicine-type-2-diabetes-and-cardiovascular-risk": "2型糖尿病与心血管风险",
+          "internal-medicine-chronic-obstructive-pulmonary-disease-exacerbation": "慢性阻塞性肺疾病急性加重",
+          "internal-medicine-chronic-kidney-disease-and-proteinuria": "慢性肾脏病与蛋白尿",
+          "internal-medicine-community-acquired-pneumonia-in-adults": "成人社区获得性肺炎",
+          "internal-medicine-rheumatoid-arthritis-and-early-disease-control": "类风湿关节炎与早期病情控制",
+          "internal-medicine-heart-failure-with-preserved-ejection-fraction": "射血分数保留型心力衰竭",
+          "internal-medicine-liver-cirrhosis-and-portal-hypertension": "肝硬化与门静脉高压",
+          "internal-medicine-sepsis-recognition-and-early-management": "脓毒症识别与早期处理",
+          "internal-medicine-atrial-fibrillation-and-stroke-prevention": "心房颤动与卒中预防",
+          "internal-medicine-iron-deficiency-anemia-in-adults": "成人缺铁性贫血",
+          "internal-medicine-inflammatory-bowel-disease-flare": "炎症性肠病急性发作",
+          "internal-medicine-pulmonary-embolism-diagnosis-and-risk-stratification": "肺栓塞诊断与风险分层",
+          "internal-medicine-acute-kidney-injury-in-hospitalized-patients": "住院患者急性肾损伤",
+          "internal-medicine-acute-ischemic-stroke": "急性缺血性卒中",
+          "internal-medicine-peptic-ulcer-disease-and-helicobacter-pylori": "消化性溃疡与幽门螺杆菌",
+          "internal-medicine-thyrotoxicosis-and-graves-disease": "甲状腺毒症与Graves病",
+          "internal-medicine-gout-and-urate-crystal-arthritis": "痛风与尿酸盐结晶性关节炎",
+          "internal-medicine-tuberculosis-diagnosis-and-treatment-principles": "结核病诊断与治疗原则",
+          "surgery-acute-appendicitis-and-surgical-decision-making": "急性阑尾炎与外科决策",
+          "surgery-gallstone-disease-and-acute-cholecystitis": "胆石症与急性胆囊炎",
+          "surgery-colorectal-cancer-screening-and-staging": "结直肠癌筛查与分期",
+          "surgery-trauma-hemorrhage-and-damage-control-resuscitation": "创伤出血与损伤控制复苏",
+          "surgery-breast-cancer-evaluation-and-multimodal-therapy": "乳腺癌评估与多模式治疗",
+          "surgery-inguinal-hernia-diagnosis-and-repair": "腹股沟疝诊断与修补",
+          "surgery-perioperative-infection-prevention": "围手术期感染预防",
+          "surgery-acute-pancreatitis-and-surgical-consultation": "急性胰腺炎与外科会诊",
+          "surgery-thyroid-nodules-and-surgical-indications": "甲状腺结节与手术适应证",
+          "surgery-postoperative-ileus-after-abdominal-surgery": "腹部手术后肠麻痹",
+          "surgery-small-bowel-obstruction": "小肠梗阻",
+          "surgery-liver-trauma-and-nonoperative-management": "肝外伤与非手术治疗",
+          "surgery-peripheral-arterial-disease-and-limb-ischemia": "外周动脉疾病与肢体缺血",
+          "surgery-abdominal-aortic-aneurysm": "腹主动脉瘤",
+          "surgery-surgical-management-of-diverticulitis": "憩室炎的外科处理",
+          "surgery-diabetic-foot-infection-and-debridement": "糖尿病足感染与清创",
+          "surgery-esophageal-cancer-and-dysphagia": "食管癌与吞咽困难",
+          "surgery-acute-limb-ischemia": "急性肢体缺血",
+          "surgery-postoperative-venous-thromboembolism-prevention": "术后静脉血栓栓塞预防",
+          "surgery-gastric-cancer-surgical-principles": "胃癌外科治疗原则",
+          "obstetrics-and-gynecology-preeclampsia-and-maternal-endothelial-dysfunction": "子痫前期与母体内皮功能障碍",
+          "obstetrics-and-gynecology-gestational-diabetes-mellitus": "妊娠期糖尿病",
+          "obstetrics-and-gynecology-ectopic-pregnancy-and-early-diagnosis": "异位妊娠与早期诊断",
+          "obstetrics-and-gynecology-endometriosis-and-chronic-pelvic-pain": "子宫内膜异位症与慢性盆腔痛",
+          "obstetrics-and-gynecology-uterine-fibroids-and-abnormal-uterine-bleeding": "子宫肌瘤与异常子宫出血",
+          "obstetrics-and-gynecology-preterm-labor-and-antenatal-corticosteroids": "早产临产与产前糖皮质激素",
+          "obstetrics-and-gynecology-cervical-cancer-screening-and-hpv-prevention": "宫颈癌筛查与HPV预防",
+          "obstetrics-and-gynecology-polycystic-ovary-syndrome": "多囊卵巢综合征",
+          "obstetrics-and-gynecology-placenta-previa-and-antepartum-hemorrhage": "前置胎盘与产前出血",
+          "obstetrics-and-gynecology-pelvic-inflammatory-disease": "盆腔炎性疾病",
+          "obstetrics-and-gynecology-postpartum-hemorrhage": "产后出血",
+          "obstetrics-and-gynecology-premature-rupture-of-membranes": "胎膜早破",
+          "obstetrics-and-gynecology-ovarian-cancer-and-adnexal-mass-evaluation": "卵巢癌与附件包块评估",
+          "obstetrics-and-gynecology-menopause-and-hormone-therapy": "绝经与激素治疗",
+          "obstetrics-and-gynecology-infertility-evaluation-in-couples": "夫妇不孕症评估",
+          "obstetrics-and-gynecology-postpartum-depression": "产后抑郁",
+          "obstetrics-and-gynecology-ovarian-torsion": "卵巢扭转",
+          "obstetrics-and-gynecology-shoulder-dystocia-during-delivery": "分娩期肩难产",
+          "obstetrics-and-gynecology-adenomyosis-and-dysmenorrhea": "子宫腺肌病与痛经",
+          "obstetrics-and-gynecology-group-b-streptococcus-in-pregnancy": "妊娠期B族链球菌感染",
+          "pediatrics-bronchiolitis-in-infants": "婴儿毛细支气管炎",
+          "pediatrics-pediatric-asthma-and-airway-inflammation": "儿童哮喘与气道炎症",
+          "pediatrics-neonatal-jaundice-and-hyperbilirubinemia": "新生儿黄疸与高胆红素血症",
+          "pediatrics-acute-gastroenteritis-and-dehydration": "急性胃肠炎与脱水",
+          "pediatrics-congenital-heart-disease-and-cyanosis": "先天性心脏病与发绀",
+          "pediatrics-kawasaki-disease-and-coronary-artery-risk": "川崎病与冠状动脉风险",
+          "pediatrics-pediatric-seizures-and-febrile-convulsions": "儿童癫痫发作与热性惊厥",
+          "pediatrics-nephrotic-syndrome-in-children": "儿童肾病综合征",
+          "pediatrics-pediatric-iron-deficiency-anemia": "儿童缺铁性贫血",
+          "pediatrics-childhood-obesity-and-metabolic-health": "儿童肥胖与代谢健康",
+          "pediatrics-type-1-diabetes-in-children": "儿童1型糖尿病",
+          "pediatrics-pediatric-pneumonia": "儿童肺炎",
+          "pediatrics-sepsis-in-children": "儿童脓毒症",
+          "pediatrics-meningitis-in-infants-and-children": "婴幼儿及儿童脑膜炎",
+          "pediatrics-acute-otitis-media": "急性中耳炎",
+          "pediatrics-urinary-tract-infection-in-children": "儿童尿路感染",
+          "pediatrics-henoch-schonlein-purpura": "过敏性紫癜",
+          "pediatrics-neonatal-respiratory-distress-syndrome": "新生儿呼吸窘迫综合征",
+          "pediatrics-attention-deficit-hyperactivity-disorder": "注意缺陷多动障碍",
+          "pediatrics-pediatric-anaphylaxis": "儿童过敏反应"
+    };
+
+    const chineseReferenceMap = {
+          "internal-medicine-hypertension-management-in-elderly-patients": "老年高血压是卒中、心力衰竭、慢性肾脏病和认知下降的重要危险因素。随年龄增长，动脉僵硬使收缩压升高、脉压增宽，同时压力感受器敏感性和肾脏钠处理能力下降。诊断应依据重复的标准化诊室血压测量，疑似白大衣高血压或隐匿性高血压时，可结合家庭或动态血压监测。治疗从限盐、控制体重、规律有氧运动、限制饮酒以及复核升压药物开始。常用药物包括噻嗪类利尿剂、钙通道阻滞剂、血管紧张素转换酶抑制剂和血管紧张素受体阻滞剂，具体选择需结合合并症和耐受性。随机证据支持老年患者接受降压治疗，但体弱者采用过于强化的目标时需谨慎，因为可能发生体位性低血压、跌倒、电解质紊乱和肾功能异常。",
+          "internal-medicine-acute-coronary-syndrome-and-plaque-rupture": "急性冠脉综合征通常由动脉粥样硬化斑块破裂或糜烂引起，并叠加血小板活化和血栓形成。患者可表现为胸骨后压榨感、呼吸困难、出汗、恶心、晕厥或不典型症状，老年人、女性和糖尿病患者尤其如此。初始评估包括心电图、心肌肌钙蛋白检测、血流动力学评估和风险分层。ST段抬高型心肌梗死需尽快再灌注，条件允许时首选直接经皮冠状动脉介入治疗，若不能及时介入则考虑溶栓。非ST段抬高型综合征需给予抗血小板、抗凝、抗缺血治疗和高强度他汀，并对高危患者采取侵入性策略。早期住院阶段应严密监测再发缺血、室性心律失常和机械并发症。二级预防包括戒烟、控制血压和血脂、心脏康复、必要时使用β受体阻滞剂，并按出血风险决定长期抗血栓治疗。",
+          "internal-medicine-type-2-diabetes-and-cardiovascular-risk": "2型糖尿病以胰岛素抵抗、β细胞功能进行性下降和慢性高血糖为特征。长期代谢异常可促进视网膜病变、肾病和神经病变等微血管并发症，同时加速动脉粥样硬化性心血管疾病。诊断依据空腹血糖、糖化血红蛋白、口服葡萄糖耐量试验，或伴典型症状时的随机血糖。管理包括结构化营养治疗、体力活动、必要时减重和个体化药物治疗。若无禁忌，二甲双胍仍是常用初始药物。合并明确心血管病、心力衰竭或慢性肾脏病者，钠-葡萄糖协同转运蛋白2抑制剂或胰高糖素样肽-1受体激动剂可带来超越降糖的器官保护获益。血糖目标应结合年龄、低血糖风险、病程、合并症和患者偏好制定。还需筛查白蛋白尿、视网膜病变、足溃疡、血脂异常和高血压。",
+          "internal-medicine-chronic-obstructive-pulmonary-disease-exacerbation": "慢性阻塞性肺疾病是一种进行性炎症性气道疾病，最常与吸烟、生物燃料烟雾、职业粉尘或α1抗胰蛋白酶缺乏等遗传易感因素有关。急性加重是指呼吸困难、咳嗽、痰量或脓性痰较日常波动明显恶化。常见诱因为病毒感染、细菌感染、空气污染和吸入装置依从性差。评估应关注血氧饱和度、呼吸做功、意识状态、合并心脏病，以及肺炎、肺栓塞或心力衰竭的可能。治疗包括短效支气管舒张剂、控制性氧疗、全身糖皮质激素，以及疑似细菌感染时使用抗生素。存在急性高碳酸血症性呼吸衰竭的部分患者，无创通气可改善结局。长期预防包括戒烟、接种疫苗、肺康复、根据症状和急性加重史选择吸入维持治疗，并进行吸入技术教育。",
+          "internal-medicine-chronic-kidney-disease-and-proteinuria": "慢性肾脏病指肾结构或功能异常持续存在，常表现为估算肾小球滤过率下降、白蛋白尿、尿沉渣异常、影像改变或组织学损伤。糖尿病、高血压、肾小球肾炎、多囊肾和反复尿路梗阻是常见病因。蛋白尿既是肾小球损伤标志，也是促进肾小管间质炎症和纤维化进展的介质。临床评估包括血压、血清肌酐、电解质、尿白蛋白肌酐比、尿常规、必要时肾脏超声以及全身性疾病评估。治疗重点在于延缓进展、降低心血管风险并预防并发症。肾素-血管紧张素系统阻滞剂可降低许多患者的白蛋白尿，钠-葡萄糖协同转运蛋白2抑制剂也在特定人群中显示肾脏保护作用。贫血、代谢性酸中毒、矿物质和骨代谢异常、高钾血症以及容量负荷过重均需定期监测并个体化处理。",
+          "internal-medicine-community-acquired-pneumonia-in-adults": "成人社区获得性肺炎是院外获得或入院早期发生的肺实质急性感染。常见病原体包括肺炎链球菌、呼吸道病毒、流感嗜血杆菌、非典型病原体和误吸相关微生物，具体取决于宿主因素和流行病学情况。患者常有发热、咳嗽、脓痰、胸膜性胸痛、呼吸困难或乏力，老年人可表现为意识混乱或功能下降。诊断依据相符症状、局灶性肺部体征、炎症指标以及胸部影像新发浸润影。严重程度评估有助于决定门诊治疗、住院或重症监护。经验性抗生素应覆盖可能病原体，并在获得微生物结果后调整。支持治疗包括氧疗、液体管理、退热和脓毒症处理。预防依赖流感疫苗、肺炎球菌疫苗、戒烟和慢性心肺疾病管理。",
+          "internal-medicine-rheumatoid-arthritis-and-early-disease-control": "类风湿关节炎是一种慢性系统性自身免疫病，以滑膜炎症、自身抗体产生、软骨破坏和骨侵蚀为特征。患者常表现为小关节对称性疼痛和肿胀、晨僵超过一小时、乏力以及手功能下降。关节外表现可累及肺、眼、皮肤、血管或心血管系统。实验室可见类风湿因子、抗瓜氨酸化蛋白抗体、红细胞沉降率升高或C反应蛋白升高，但诊断仍以临床判断为主，并需结合滑膜炎或骨侵蚀的影像证据。早期启动改善病情抗风湿药可改善长期结局。甲氨蝶呤常作为一线治疗，并需补充叶酸以及监测肝脏、血液和肺毒性。若疾病活动度仍高，可加用生物制剂或靶向合成药物。治疗目标是在规律评估下达到缓解或低疾病活动度。",
+          "internal-medicine-heart-failure-with-preserved-ejection-fraction": "射血分数保留型心力衰竭是一种临床综合征，患者虽左心室射血分数未明显降低，却存在心衰症状和体征。该病多见于老年人，并与高血压、肥胖、糖尿病、慢性肾脏病、房颤和冠心病相关。其病理生理包括心室舒张受损、心腔僵硬度增加、内皮炎症、微血管功能障碍以及运动时充盈压升高。患者可出现劳力性呼吸困难、端坐呼吸、水肿、运动耐量下降或因淤血反复住院。诊断需结合临床评估、利钠肽测定、超声心动图，并排除肺病或贫血等类似疾病。管理包括容量负荷过重时使用利尿剂、积极控制高血压、控制房颤、体重管理、运动训练和治疗合并症。部分药物类别已证实可减少心衰住院。",
+          "internal-medicine-liver-cirrhosis-and-portal-hypertension": "肝硬化是慢性肝损伤的共同终末通路，表现为弥漫性纤维化、再生结节和肝血管结构扭曲。常见病因包括慢性病毒性肝炎、酒精相关肝病、代谢功能障碍相关脂肪性肝病、自身免疫性肝炎和胆汁淤积性疾病。门静脉高压源于门静脉血流阻力增加，可导致脾肿大、血小板减少、腹水、胃食管静脉曲张、肝性脑病和肝肾综合征。临床评估包括肝生化、凝血功能、血小板计数、病毒血清学、必要时自身免疫标志物、超声、弹性成像和内镜筛查静脉曲张。管理取决于疾病阶段，包括治疗病因、接种疫苗、避免肝毒性药物、营养支持、腹水限钠、使用非选择性β受体阻滞剂或内镜治疗预防静脉曲张出血，并监测肝细胞癌。晚期失代偿者应考虑肝移植。",
+          "internal-medicine-sepsis-recognition-and-early-management": "脓毒症是感染导致宿主反应失调而引起的危及生命的器官功能障碍。感染来源可为肺炎、腹腔感染、尿路感染、皮肤软组织感染、脑膜炎或血流感染。早期线索包括发热或低体温、心动过速、呼吸急促、低血压、意识改变、少尿、皮肤花斑和乳酸升高。诊断需要怀疑感染并评估器官功能障碍，而不能依赖单一实验室指标。初始处理强调快速识别、测定乳酸、采集合适培养、及时使用广谱抗菌药、低灌注时液体复苏，以及足量补液后休克仍持续时使用血管活性药。若存在可清除感染灶，需通过引流、清创、移除装置或手术进行感染源控制。后续治疗包括抗菌药降阶梯、血流动力学监测、器官支持、并发症预防和危重病后康复。",
+          "internal-medicine-atrial-fibrillation-and-stroke-prevention": "心房颤动是成人最常见的持续性心律失常，与衰老、高血压、瓣膜病、心力衰竭、甲状腺功能亢进、肥胖、饮酒和睡眠呼吸暂停相关。心房协调收缩丧失和心室反应不规则可导致心悸、呼吸困难、乏力、头晕、胸部不适或心衰加重。部分患者无症状，仅在脉搏检查或心电图中发现。主要临床危险是血栓栓塞，尤其是左心耳血栓引起的缺血性卒中。评估包括可逆诱因、超声心动图、甲状腺功能、肾功能、出血风险和症状负担。管理包括控制心室率、选择性节律控制、按血栓栓塞风险抗凝以及治疗相关疾病。非瓣膜性房颤广泛使用直接口服抗凝药，部分瓣膜病或机械瓣患者仍需华法林。导管消融可改善严格选择患者的症状。",
+          "internal-medicine-iron-deficiency-anemia-in-adults": "缺铁性贫血是由于血红蛋白合成所需铁不足所致，常见原因包括慢性失血、摄入不足、需求增加或吸收障碍。成人的重要病因包括隐匿性胃肠道出血、月经过多、妊娠、吸收不良、减重手术和炎症性肠病。患者可有乏力、劳力性呼吸困难、运动耐量下降、心悸、头晕、异食癖、指甲脆裂或不宁腿。实验室通常表现为小细胞低色素性贫血、铁蛋白降低、转铁蛋白饱和度降低和总铁结合力升高，但炎症时铁蛋白可假性正常或升高。管理既要补铁，也要寻找基础病因。口服铁对许多患者有效，但胃肠不良反应和依从性差较常见。需要快速补足、口服失败、吸收受损或持续丢失明显时可用静脉铁。治疗无反应时应重新评估诊断和出血来源。",
+          "internal-medicine-inflammatory-bowel-disease-flare": "炎症性肠病包括溃疡性结肠炎和克罗恩病，二者均为遗传易感、免疫失调、微生物因素和环境诱因共同驱动的慢性复发性肠道炎症。急性发作可表现为腹泻、腹痛、直肠出血、里急后重、发热、体重下降、贫血，或累及关节、皮肤、眼和肝胆系统的肠外表现。评估需区分活动性炎症、感染、肠易激综合征、药物影响和结构性并发症。检查可包括血常规、炎症指标、粪便检测、粪钙卫蛋白、内镜、活检，以及疑似小肠病变或脓肿时的断层影像。治疗取决于病变部位、严重程度、既往反应和并发症。可选方案包括特定溃疡性结肠炎患者使用氨基水杨酸类，糖皮质激素诱导缓解，免疫调节剂、生物制剂、小分子药物、营养支持，以及难治或复杂病例手术。长期管理包括疫苗接种、癌症监测、骨健康和药物毒性监测。",
+          "internal-medicine-pulmonary-embolism-diagnosis-and-risk-stratification": "肺栓塞是血栓物质通常来自下肢或盆腔深静脉，阻塞肺动脉循环。危险因素包括近期手术、创伤、制动、癌症、妊娠、雌激素治疗、遗传性血栓形成倾向、既往静脉血栓栓塞和急性内科疾病。临床表现多样，可有突发呼吸困难、胸膜性胸痛、咳嗽、咯血、晕厥、心动过速、低氧血症或深静脉血栓体征。诊断从估计验前概率开始。低危患者可用D-二聚体排除疾病，需要影像时常用CT肺动脉造影。血流动力学不稳定提示大面积栓塞，需要紧急评估。治疗包括抗凝，疗程由诱发因素和复发风险决定。休克或严重右室功能障碍的高危患者可考虑溶栓、导管治疗或外科取栓。预防依赖住院和术后患者适当血栓预防。",
+          "internal-medicine-acute-kidney-injury-in-hospitalized-patients": "急性肾损伤是肾功能突然下降，表现为血清肌酐升高、尿量减少或二者兼有。它在住院患者中常见，并与死亡率升高、住院时间延长和后续慢性肾脏病相关。病因常分为肾前性低灌注、肾实质损伤和肾后性梗阻。脓毒症、脱水、心力衰竭、肾毒性药物、造影剂暴露、横纹肌溶解、肾小球肾炎和尿潴留均为常见因素。评估包括容量状态、用药复核、尿常规、尿沉渣镜检、电解质、疑似梗阻时肾脏超声，以及系统性疾病评估。管理重点是纠正低灌注、停用肾毒物、调整药物剂量、治疗感染或梗阻，并监测钾、酸碱状态和液体平衡。难治性高钾、严重酸中毒、肺水肿、尿毒症并发症或特定毒物暴露时需透析。恢复可能不完全，出院后应复查肾功能。",
+          "internal-medicine-acute-ischemic-stroke": "急性缺血性卒中由动脉血栓、栓塞或小血管闭塞导致脑血流突然中断。症状取决于受累血管区域，可包括单侧无力、口角歪斜、言语障碍、视力丧失、共济失调、忽略、感觉缺失或意识改变。快速识别至关重要，因为再灌注治疗具有时间敏感性。初始评估包括气道和循环评估、血糖测定、神经功能评分、非增强头颅CT或MRI以排除出血，以及疑似大血管闭塞时行血管成像。符合条件者可在认可时间窗内接受静脉溶栓，近端大血管闭塞的部分患者可通过机械取栓改善结局。支持治疗包括血压管理、吞咽评估、抗血小板或抗凝决策、他汀治疗、静脉血栓栓塞预防和早期康复。二级预防针对高血压、糖尿病、吸烟、血脂异常、房颤和颈动脉病变。",
+          "internal-medicine-peptic-ulcer-disease-and-helicobacter-pylori": "消化性溃疡是胃或十二指肠黏膜溃疡，源于攻击因素与黏膜防御失衡。幽门螺杆菌感染和非甾体抗炎药使用是最重要病因，吸烟、严重生理应激和某些药物也会增加风险。患者可出现上腹痛、早饱、恶心、腹胀、隐匿性出血、缺铁性贫血、黑便、呕血，或穿孔时突发剧烈腹痛。诊断可包括幽门螺杆菌非侵入检测、上消化道内镜和活检，尤其在存在警示症状或年龄较大者。治疗包括质子泵抑制剂抑酸、幽门螺杆菌根除治疗、停用或减少致溃疡药物，并处理出血、穿孔或梗阻等并发症。根除治疗后应确认疗效，复发或复杂病例需重新评估依从性、耐药性和其他病因。",
+          "internal-medicine-thyrotoxicosis-and-graves-disease": "甲状腺毒症是甲状腺激素过量导致的临床状态，Graves病是常见病因，由促甲状腺激素受体抗体刺激甲状腺所致。患者可表现为体重下降、怕热、出汗、震颤、心悸、焦虑、腹泻、肌无力、月经紊乱或房颤。Graves病还可伴弥漫性甲状腺肿、眼病或胫前黏液性水肿。诊断依赖促甲状腺激素降低、游离甲状腺素或三碘甲状腺原氨酸升高，并结合抗体、摄碘率或超声血流判断病因。治疗包括β受体阻滞剂控制症状、抗甲状腺药物、放射性碘或手术。甲状腺危象是一种危及生命的重症，需要快速识别和综合治疗。长期随访应监测复发、甲减、药物不良反应和眼病进展。",
+          "internal-medicine-gout-and-urate-crystal-arthritis": "痛风是单钠尿酸盐结晶沉积引起的炎症性关节炎，常与高尿酸血症、肾功能下降、利尿剂、肥胖、饮酒、富嘌呤饮食和代谢综合征有关。急性发作通常表现为一个或多个关节突发剧烈疼痛、红肿和压痛，第一跖趾关节最典型。诊断以在滑液中发现针状负性双折光尿酸盐结晶为标准；在典型病例中，也可结合临床表现、血尿酸和影像学判断。急性治疗包括非甾体抗炎药、秋水仙碱或糖皮质激素，选择取决于禁忌证和合并症。反复发作、痛风石、肾结石或慢性痛风性关节炎患者需降尿酸治疗。启动降尿酸时常需预防急性发作，并教育患者饮食、体重和药物依从性。",
+          "internal-medicine-tuberculosis-diagnosis-and-treatment-principles": "结核病由结核分枝杆菌引起，最常累及肺部，但也可侵犯淋巴结、胸膜、骨、泌尿生殖道或中枢神经系统。肺结核可表现为持续咳嗽、发热、盗汗、体重下降、咯血、胸痛或乏力。诊断结合流行病学风险、胸部影像、痰涂片抗酸染色、分枝杆菌培养和核酸扩增检测。潜伏感染检测包括结核菌素皮试或干扰素γ释放试验，但不能区分活动病。治疗需采用多药联合方案，以防耐药并实现治愈。常用初始治疗包括异烟肼、利福平、吡嗪酰胺和乙胺丁醇，随后根据药敏和病变部位调整。需监测肝毒性、视神经毒性、药物相互作用和依从性。公共卫生措施包括隔离、接触者追踪和督导治疗。"
+    };
+
+    Object.assign(chineseReferenceMap, {
+          "surgery-acute-appendicitis-and-surgical-decision-making": "急性阑尾炎常由阑尾腔梗阻诱发，随后腔内压力升高、细菌增殖、静脉回流受阻，并可能进展为缺血、坏疽或穿孔。患者多先出现脐周或上腹痛，随后转移至右下腹，可伴厌食、恶心、呕吐、低热和局限性压痛。诊断依赖病史、体格检查、炎症指标和影像学评估，儿童或孕妇常首选超声，成人疑难病例可行CT。治疗需结合穿孔风险、全身状况和影像结果，通常包括镇痛、补液、抗生素和阑尾切除，部分非复杂病例可在严密选择下接受抗生素治疗。",
+          "surgery-gallstone-disease-and-acute-cholecystitis": "胆石症可无症状，也可因胆囊管短暂梗阻导致胆绞痛。若梗阻持续并引发胆囊壁炎症，即形成急性胆囊炎，表现为右上腹痛、发热、恶心、Murphy征阳性和炎症指标升高。超声是首选检查，可显示胆石、胆囊壁增厚或胆囊周围液体。治疗包括禁食、补液、镇痛、抗菌治疗和及时腹腔镜胆囊切除；若病情危重或手术风险高，可考虑经皮胆囊造瘘作为桥接处理。",
+          "surgery-colorectal-cancer-screening-and-staging": "结直肠癌多由腺瘤-癌序列逐步发展，筛查可在癌前阶段发现并切除病变。常用筛查方式包括粪便免疫化学试验、结肠镜、乙状结肠镜和影像学检查，选择取决于风险分层和当地条件。症状可包括排便习惯改变、便血、缺铁性贫血、腹痛、体重下降或肠梗阻。确诊需结肠镜活检，分期结合CT、MRI、直肠超声或PET等评估局部侵犯和转移。治疗依据分期制定，可包括手术切除、化疗、放疗、靶向治疗和免疫治疗。",
+          "surgery-trauma-hemorrhage-and-damage-control-resuscitation": "创伤性出血可迅速导致休克、凝血障碍、低体温和酸中毒。损伤控制复苏强调早期识别致命出血、限制晶体液过量输注、尽早平衡输注红细胞、血浆和血小板，并及时使用止血措施。评估需关注气道、呼吸、循环、意识和暴露，同时寻找胸腔、腹腔、骨盆、长骨和外部出血来源。控制出血可依靠压迫、止血带、骨盆固定、介入栓塞或手术。损伤控制手术以快速止血和污染控制为目标，待生理状态改善后再行确定性修复。",
+          "surgery-breast-cancer-evaluation-and-multimodal-therapy": "乳腺癌评估通常结合临床查体、乳腺影像和粗针穿刺活检。病理报告需明确浸润性或原位病变、组织学类型、分级、雌孕激素受体、HER2状态和增殖指数。治疗采用多模式策略，依据分期、肿瘤生物学和患者偏好选择手术、放疗、化疗、内分泌治疗、抗HER2治疗、免疫治疗或靶向治疗。保乳手术与放疗可在部分患者中获得与乳房切除相近的肿瘤控制。沟通时需同时关注生存获益、复发风险、淋巴水肿、生育力和身体形象。",
+          "surgery-inguinal-hernia-diagnosis-and-repair": "腹股沟疝是腹腔内容物经腹股沟区薄弱处突出，可表现为站立、咳嗽或用力时增大的可复性包块。疼痛、嵌顿或绞窄提示并发症风险，需及时评估。诊断多依赖病史和体格检查，肥胖或体征不明确时可用超声或CT辅助。无症状或轻症男性可选择观察等待，但症状明显、女性患者或并发症风险高者通常建议修补。手术可采用开放或腹腔镜方式，并常使用补片降低复发率；术后需关注疼痛、感染、血肿和慢性腹股沟痛。",
+          "surgery-perioperative-infection-prevention": "围手术期感染预防需要在术前、术中和术后多个环节降低病原体污染和宿主易感性。措施包括术前皮肤准备、必要时去除毛发、控制血糖、戒烟、优化营养、合理使用预防性抗生素并在切皮前达到有效血药浓度。术中应维持无菌操作、体温、氧合和止血，减少不必要的手术时间和异物暴露。术后需规范伤口护理、尽早拔除不必要导管，并监测发热、红肿、渗液或疼痛加重。抗生素选择应基于手术类型、污染程度和当地耐药情况，避免不必要延长用药。",
+          "surgery-acute-pancreatitis-and-surgical-consultation": "急性胰腺炎多由胆石或酒精引起，也可与高甘油三酯血症、药物、创伤或操作有关。典型表现为突发上腹痛向背部放射，伴恶心、呕吐和腹部压痛。诊断依据典型疼痛、胰酶升高和必要时影像学证据。早期治疗以评估严重程度、补液、镇痛、营养支持和处理病因为主。外科会诊用于疑似胆源性病因、感染性坏死、腹腔并发症或需要胆囊切除者；无菌坏死通常不急于手术，感染坏死可采用逐步升级的介入或手术清创策略。",
+          "surgery-thyroid-nodules-and-surgical-indications": "甲状腺结节常见，多数为良性。评估包括病史、颈部查体、促甲状腺激素水平、超声风险分层和必要时细针穿刺细胞学。恶性风险与低回声、微钙化、不规则边界、纵横比异常、淋巴结异常以及放射暴露史有关。手术适应证包括明确或疑似恶性、压迫症状、胸骨后甲状腺肿、功能自主结节或患者偏好。手术范围需结合细胞学、分子检测、肿瘤大小、淋巴结状态和复发风险决定，并需告知喉返神经损伤、低钙血症和甲状腺激素替代等问题。",
+          "surgery-postoperative-ileus-after-abdominal-surgery": "术后肠麻痹是腹部手术后胃肠动力暂时抑制，表现为腹胀、恶心、呕吐、停止排气排便和不能耐受进食。其发生与肠道操作、炎症反应、阿片类镇痛药、电解质紊乱和卧床有关。诊断需与机械性肠梗阻、吻合口漏、腹腔感染和出血等并发症鉴别。处理包括纠正电解质、减少阿片用量、鼓励早期下床、咀嚼口香糖、逐步恢复饮食和必要时胃肠减压。若症状持续或加重，应行影像学检查寻找机械性梗阻或腹腔并发症。",
+          "surgery-small-bowel-obstruction": "小肠梗阻是小肠内容物通过受阻，常见原因包括术后粘连、疝、肿瘤、炎症狭窄和肠扭转。患者可出现阵发性腹痛、呕吐、腹胀和停止排气排便。评估应注意脱水、发热、心动过速、腹膜刺激征、乳酸升高和绞窄缺血迹象。CT有助于明确梗阻部位、程度、病因和并发症。初始治疗包括禁食、静脉补液、电解质纠正、镇痛和必要时鼻胃管减压。若疑似闭袢梗阻、绞窄、穿孔、完全梗阻或保守治疗失败，应及时手术。",
+          "surgery-liver-trauma-and-nonoperative-management": "肝外伤可由钝性或穿透性损伤导致，严重程度从包膜下血肿到肝实质裂伤和大血管损伤不等。血流动力学稳定者常可非手术治疗，包括严密监测生命体征、血红蛋白、腹部体征和影像变化。增强CT用于损伤分级和发现活动性出血。非手术治疗可结合输血、介入栓塞、重症监护和并发症处理。若患者血流动力学不稳定、持续出血、腹膜炎或合并需手术的其他腹腔损伤，则需手术探查。并发症包括胆漏、脓肿、迟发出血和肝坏死。",
+          "surgery-peripheral-arterial-disease-and-limb-ischemia": "外周动脉疾病多由动脉粥样硬化导致下肢供血不足。患者可表现为间歇性跛行、静息痛、皮肤温度下降、足部溃疡或坏疽。危险因素包括吸烟、糖尿病、高血压、血脂异常和慢性肾脏病。评估包括脉搏检查、踝肱指数、血管超声、CTA或MRA。治疗包括戒烟、运动治疗、抗血小板、他汀、控制危险因素和足部护理。严重肢体缺血或组织缺损者需血运重建，可采用腔内治疗、旁路手术或混合策略，以缓解疼痛、促进创面愈合并保肢。",
+          "surgery-abdominal-aortic-aneurysm": "腹主动脉瘤是腹主动脉永久性局限扩张，常与动脉粥样硬化、吸烟、年龄增长、男性、家族史和高血压相关。多数患者无症状，通过筛查或影像偶然发现；扩大或破裂时可出现腹痛、背痛、低血压或搏动性腹部包块。超声适合筛查和随访，CT血管成像用于手术规划。处理取决于瘤体直径、增长速度、症状和手术风险。较小无症状动脉瘤可定期随访和控制危险因素；达到修复阈值、有症状或破裂风险高者可行开放修复或腔内动脉瘤修复。",
+          "surgery-surgical-management-of-diverticulitis": "憩室炎是结肠憩室发生炎症，常表现为左下腹痛、发热、白细胞增多和排便习惯改变。CT可确认诊断并评估脓肿、穿孔、瘘管或梗阻等复杂情况。轻症非复杂憩室炎可门诊处理，选择性使用抗生素、饮食调整和随访。复杂病例可能需要静脉抗生素、经皮脓肿引流或手术。手术适应证包括弥漫性腹膜炎、未控制脓毒症、治疗失败、复发严重影响生活质量、狭窄、瘘管或不能排除肿瘤。术式需根据污染程度、患者稳定性和基础状况决定。",
+          "surgery-diabetic-foot-infection-and-debridement": "糖尿病足感染多发生在神经病变、外周动脉疾病和足部溃疡基础上。临床可见红肿热痛、脓性分泌物、恶臭、坏死、全身症状或骨外露。评估需判断感染严重度、溃疡深度、血供、血糖控制和骨髓炎可能。可根据情况使用探骨试验、炎症指标、X线、MRI和骨培养。管理包括减压、创面护理、优化血糖、血管评估、合适抗生素和清除坏死组织。坏死性感染、深部脓肿、筋膜室综合征、严重缺血伴感染或全身中毒时需急诊手术；保肢可能需要血运重建。",
+          "surgery-esophageal-cancer-and-dysphagia": "食管癌包括鳞癌和腺癌，其流行病学受烟草、酒精、胃食管反流病、Barrett食管、肥胖、饮食和环境暴露影响。进行性吞咽困难是典型症状，初为固体食物困难，后发展到液体。其他表现包括体重下降、吞咽痛、反流、胸部不适、声音嘶哑、咳嗽、误吸或缺铁性贫血。确诊需上消化道内镜活检，分期可用CT、超声内镜、PET和必要时支气管镜。治疗取决于分期、部位、组织学、体能状态和患者目标，可包括内镜治疗、手术、放化疗、系统治疗、支架、营养支持和姑息治疗。",
+          "surgery-acute-limb-ischemia": "急性肢体缺血是动脉灌注突然下降并威胁肢体活力。病因包括房颤栓塞、病变动脉原位血栓、移植物闭塞、创伤、夹层和高凝状态。典型表现为疼痛、苍白、无脉、感觉异常、运动麻痹、皮温降低和花斑。神经功能缺损的持续时间和严重程度是判断肢体可挽救性的关键。治疗不应因检查而延误，除非禁忌，应立即给予肝素抗凝、镇痛、可行时血管影像，并紧急血管外科会诊。血运重建可采用导管溶栓、取栓、成形、支架、旁路或混合手术；再灌注后可能需筋膜切开。",
+          "surgery-postoperative-venous-thromboembolism-prevention": "术后静脉血栓栓塞包括深静脉血栓和肺栓塞，可导致显著发病率和死亡率。手术创伤、制动、静脉淤滞、炎症、癌症、肥胖、高龄、既往血栓、血栓形成倾向和雌激素暴露会增加风险。预防始于个体化风险评估，并平衡血栓和出血风险。机械措施包括早期下床、梯度弹力袜和间歇充气加压装置。药物预防可使用低分子肝素、普通肝素、磺达肝癸钠或部分口服抗凝药。大型骨科、肿瘤和盆腔手术常需更强化或延长预防。临床监测需注意小腿肿胀、不明原因心动过速、呼吸困难、低氧或胸膜性疼痛。",
+          "surgery-gastric-cancer-surgical-principles": "胃癌是恶性上皮性肿瘤，与幽门螺杆菌感染、萎缩性胃炎、肠化生、吸烟、高盐饮食、家族史和遗传综合征相关。早期可无症状，进展期可出现体重下降、上腹痛、早饱、呕吐、贫血、黑便或淋巴结肿大。诊断依赖胃镜活检，分期包括CT、选择性超声内镜、腹腔镜探查腹膜病变以及系统治疗前生物标志物检测。局限可切除疾病以手术切除为核心，可行远端、次全或全胃切除，并进行适当淋巴结清扫和消化道重建。围手术期或辅助化疗可改善许多患者结局，特定情境下使用放化疗或靶向治疗。",
+          "obstetrics-and-gynecology-preeclampsia-and-maternal-endothelial-dysfunction": "子痫前期是妊娠特异性高血压疾病，表现为妊娠中期以后新发高血压，并伴蛋白尿或母体器官功能障碍。异常胎盘形成、螺旋动脉重塑受损、抗血管生成因子和全身内皮功能障碍可导致血管收缩、毛细血管渗漏、血小板活化和器官灌注下降。临床可有头痛、视觉障碍、上腹痛、水肿、血小板减少、肝酶升高、肾损伤、胎儿生长受限或肺水肿。诊断需准确测压并检查尿蛋白、血小板、肌酐和肝酶。重症可进展为子痫、卒中、胎盘早剥或母体死亡。处理依据孕周和严重程度，包括重度高血压降压、硫酸镁预防惊厥、胎儿监测和适时终止妊娠。",
+          "obstetrics-and-gynecology-gestational-diabetes-mellitus": "妊娠期糖尿病是在妊娠期间首次发现的糖耐量异常，与胎盘激素介导的胰岛素抵抗相关。危险因素包括肥胖、高龄、既往妊娠糖尿病、糖尿病家族史、多囊卵巢综合征和特定族群背景。筛查可采用一步法或两步法口服葡萄糖耐量试验。母体高血糖会增加巨大儿、肩难产、新生儿低血糖、剖宫产、高血压疾病以及母婴日后2型糖尿病风险。治疗从营养治疗、体力活动和自我血糖监测开始，未达标时常用胰岛素，部分口服药可按指南和个体情况考虑。产后需复查糖代谢，并长期进行体重管理和代谢随访。",
+          "obstetrics-and-gynecology-ectopic-pregnancy-and-early-diagnosis": "异位妊娠是受精卵着床于宫腔以外，最常见于输卵管。危险因素包括既往异位妊娠、输卵管手术、盆腔炎、辅助生殖、吸烟，以及带器妊娠失败。患者可出现停经、下腹痛、阴道流血，若破裂并发生腹腔内出血，可有肩痛、头晕或晕厥。诊断需高度警惕，结合定量β-hCG、经阴道超声和血流动力学稳定性评估。β-hCG超过判别区而未见宫内妊娠时，应谨慎评估而非机械干预。稳定且符合条件的小型未破裂异位妊娠可用甲氨蝶呤，并需可靠随访；破裂、不稳定、药物禁忌或诊断不明时需手术。",
+          "obstetrics-and-gynecology-endometriosis-and-chronic-pelvic-pain": "子宫内膜异位症是一种雌激素依赖性慢性炎症性疾病，表现为子宫内膜样组织位于宫腔以外。病灶可累及卵巢、盆腔腹膜、骶韧带、肠道、膀胱或手术瘢痕。机制可能包括经血逆流、免疫失调、体腔上皮化生、干细胞迁移和遗传易感。症状包括痛经、深部性交痛、慢性盆腔痛、排便痛、尿痛、不孕、乏力和周期性疼痛加重。查体可见骶韧带结节、子宫后倾固定、附件压痛或盆底肌高张。影像有助于识别内膜异位囊肿或深部浸润病变，部分病例需腹腔镜和病理确认。治疗可包括NSAIDs、激素治疗、GnRH类似物、生育导向治疗、盆底康复或保守手术。",
+          "obstetrics-and-gynecology-uterine-fibroids-and-abnormal-uterine-bleeding": "子宫肌瘤是子宫肌层良性平滑肌肿瘤，可位于黏膜下、肌壁间、浆膜下或带蒂。其生长受雌激素、孕激素、细胞外基质沉积和遗传因素影响。许多肌瘤无症状，但黏膜下或较大肌壁间肌瘤可导致月经过多、贫血、盆腔压迫、尿频、便秘、不孕、复发性流产或妊娠并发症。评估包括病史、盆腔检查、血常规、妊娠试验和盆腔超声；盐水灌注超声或MRI可进一步显示宫腔变形和手术解剖。治疗取决于症状、大小、部位、年龄、生育需求和偏好，可选择补铁、氨甲环酸、激素治疗、左炔诺孕酮宫内系统、GnRH药物、子宫动脉栓塞、肌瘤剔除或子宫切除。",
+          "obstetrics-and-gynecology-preterm-labor-and-antenatal-corticosteroids": "早产临产是足月前规律宫缩并伴宫颈改变，是新生儿发病和死亡的重要原因。危险因素包括既往早产、多胎、宫颈短、宫内感染、子宫畸形、出血、吸烟和辅助生殖。评估包括核实孕周、宫缩、宫颈检查、胎儿状态、胎膜状态、感染评估，必要时测宫颈长度或胎儿纤维连接蛋白。处理取决于孕周、母体状况和胎儿情况。宫缩抑制剂可短暂延迟分娩，以便转运或完成促胎肺成熟治疗。产前糖皮质激素可在合适孕周窗口内降低早产儿呼吸窘迫等并发症。早期早产可用硫酸镁进行胎儿神经保护；抗生素用于胎膜早破或B族链球菌预防，而非单纯早产临产常规治疗。",
+          "obstetrics-and-gynecology-cervical-cancer-screening-and-hpv-prevention": "宫颈癌与高危型人乳头瘤病毒持续感染密切相关，病毒蛋白可影响细胞周期调控并促进癌变。筛查可在浸润癌发生前发现宫颈上皮内瘤变。策略包括细胞学、高危HPV检测或联合筛查，间隔依据年龄、结果、免疫状态和既往史决定。异常结果可按风险进行复查、阴道镜、定向活检或切除治疗。浸润性病变可表现为性交后出血、经间期出血、恶臭分泌物、盆腔痛或晚期泌尿直肠症状。预防依赖HPV疫苗、安全性行为、戒烟和有组织筛查。治疗按分期选择手术、同步放化疗、近距离放疗、系统治疗、免疫治疗或姑息照护。",
+          "obstetrics-and-gynecology-polycystic-ovary-syndrome": "多囊卵巢综合征是常见内分泌疾病，在排除相关疾病后，以排卵障碍、高雄激素表现和多囊卵巢形态为特征。胰岛素抵抗和代偿性高胰岛素血症促进卵巢雄激素生成并增加代谢风险。患者可有月经不规则、不孕、多毛、痤疮、雄激素性脱发、体重增加或黑棘皮病。评估包括月经史、雄激素过多体征、妊娠试验、必要时甲状腺和泌乳素评估、雄激素测定以及代谢筛查。超声有帮助但并非所有患者必需。管理依据生育目标和症状负担制定，生活方式干预有助于体重、心代谢健康和排卵；复方激素避孕药可调经并改善雄激素症状，来曲唑常用于不孕促排。",
+          "obstetrics-and-gynecology-placenta-previa-and-antepartum-hemorrhage": "前置胎盘是胎盘组织部分或完全覆盖宫颈内口，可导致无痛性产前出血。危险因素包括既往剖宫产、多胎、高龄、吸烟、辅助生殖、多产和既往子宫手术。经阴道超声安全且能准确定位胎盘。排除前置胎盘前应避免阴道指检，以免诱发严重出血。出血可间歇且不可预测，需评估母体血流动力学、胎儿情况、孕周、血红蛋白、凝血状态和备血需求。处理可包括观察、活动调整、可能早产时促胎肺成熟、必要时Rh免疫球蛋白，以及持续前置胎盘者计划剖宫产。出血失控、母体不稳或胎儿窘迫时需急诊分娩。",
+          "obstetrics-and-gynecology-pelvic-inflammatory-disease": "盆腔炎性疾病是女性上生殖道上行感染，可累及子宫内膜、输卵管、卵巢或盆腔腹膜。常与沙眼衣原体和淋病奈瑟菌等性传播病原体相关，也可由厌氧菌、生殖支原体和阴道菌群参与。症状包括下腹痛、异常分泌物、发热、性交痛、尿痛、经间期出血或附件压痛。由于临床表现常不特异，育龄期患者出现盆腔痛并有宫颈举痛、子宫或附件压痛且无更好解释时，不应延迟治疗。评估可包括妊娠试验、性传播感染核酸检测、炎症指标、盆腔超声和输卵管卵巢脓肿评估。经验性广谱抗生素应覆盖可能病原体，性伴需评估和治疗。延误治疗会增加不孕、异位妊娠和慢性盆腔痛风险。",
+          "obstetrics-and-gynecology-postpartum-hemorrhage": "产后出血是分娩后出血过多，仍是全球孕产妇发病和死亡的重要原因。主要病因常概括为子宫收缩乏力、胎盘组织残留、产道损伤和凝血障碍。危险因素包括产程延长、子宫过度膨胀、绒毛膜羊膜炎、手术助产、前置胎盘、胎盘早剥、既往出血和子宫肌瘤，但也可无预警发生。处理需快速估计失血量、评估生命体征、子宫张力并寻找出血来源。初始治疗包括子宫按摩、缩宫素、建立静脉通路、液体复苏、实验室检查和必要时启动大量输血流程。还可需要其他宫缩剂、氨甲环酸、手取胎盘、修补裂伤、球囊填塞、子宫动脉栓塞、压迫缝合或子宫切除。",
+          "obstetrics-and-gynecology-premature-rupture-of-membranes": "胎膜早破指临产前胎膜破裂，若发生在足月前则称早产胎膜早破。其可能与胎膜薄弱、感染、宫颈机能不全、出血、吸烟、多胎或既往早产有关。患者通常诉突发大量或持续阴道流出清亮液体。诊断依据无菌窥器检查、见羊水流出、pH检测、羊齿状结晶或生化检测。除非即将分娩，应尽量减少阴道指检，以降低感染风险。处理取决于孕周、胎儿状态、感染、临产和期待治疗禁忌。足月破膜通常引产或计划分娩；早产破膜可能需要住院、潜伏期抗生素、产前糖皮质激素、胎儿监测和适当时硫酸镁神经保护。绒毛膜羊膜炎、胎盘早剥、胎儿窘迫或产程进展需分娩。",
+          "obstetrics-and-gynecology-ovarian-cancer-and-adnexal-mass-evaluation": "卵巢癌早期症状常不明显，进展后可出现腹胀、早饱、盆腹痛、尿频、体重变化或腹水。附件包块评估需结合年龄、绝经状态、症状、家族史、遗传风险、查体、超声特征和肿瘤标志物。经阴道超声可评估包块大小、实性成分、乳头状突起、分隔、双侧性和血流。CA-125在绝经后或疑似上皮性卵巢癌时有帮助，但特异性有限。疑似恶性者应转诊妇科肿瘤专科，避免不恰当穿刺或分期不足。治疗通常包括手术分期和减瘤，结合铂类化疗、靶向治疗或维持治疗，具体取决于组织学类型、分期、遗传检测和患者状况。",
+          "obstetrics-and-gynecology-menopause-and-hormone-therapy": "绝经是卵巢卵泡功能下降导致月经永久停止，常伴潮热、盗汗、睡眠障碍、情绪波动、阴道干涩、性交痛和骨量减少。诊断多依据年龄和停经史，通常不需常规激素检测。治疗需评估症状严重度、子宫状态、心血管风险、乳腺癌风险、血栓风险和患者偏好。绝经激素治疗可有效缓解血管舒缩症状和泌尿生殖道症状，并预防骨量丢失，但并非适用于所有人。有子宫者需加用孕激素保护子宫内膜；局部阴道雌激素可用于泌尿生殖综合征。非激素治疗和生活方式干预也可作为选择。",
+          "obstetrics-and-gynecology-infertility-evaluation-in-couples": "不孕症评估应同时考虑男女双方因素，通常在规律无保护性生活12个月未孕后开始，年龄较大或存在明显风险时应提前。女性评估包括排卵情况、卵巢储备、输卵管通畅性、子宫结构、内分泌疾病和子宫内膜异位症。男性评估以精液分析为基础，必要时检查激素、遗传因素或泌尿生殖系统异常。病史需包括月经、妊娠、手术、感染、药物、性生活频率和生活方式。治疗取决于病因，可包括诱导排卵、手术纠正、宫腔内人工授精、体外受精或供体配子。咨询应关注成功率、费用、多胎风险和心理压力。",
+          "obstetrics-and-gynecology-postpartum-depression": "产后抑郁是分娩后发生的抑郁障碍，可影响母亲功能、亲子依恋和婴儿发育。症状包括持续情绪低落、兴趣减退、睡眠和食欲改变、内疚、焦虑、注意力下降、疲惫、无价值感，严重时可有自伤或伤婴念头。危险因素包括既往抑郁、产前焦虑、社会支持不足、伴侣暴力、妊娠并发症和睡眠剥夺。筛查可使用爱丁堡产后抑郁量表等工具。治疗包括心理治疗、社会支持、睡眠保护和抗抑郁药，哺乳期用药需权衡获益和风险。若出现精神病性症状、自杀风险或伤婴风险，应立即紧急处理。",
+          "obstetrics-and-gynecology-ovarian-torsion": "卵巢扭转是卵巢及其血管蒂旋转导致静脉和动脉血流受阻，属于妇科急症。常见诱因包括卵巢囊肿、肿瘤、促排卵后卵巢增大和妊娠。患者通常突发单侧下腹痛，可伴恶心、呕吐和附件压痛。超声多普勒有助于评估卵巢增大、周边卵泡、蒂部旋涡征和血流，但血流存在不能排除扭转。若临床高度怀疑，不应因影像不典型而延误手术。腹腔镜探查和复位是主要治疗，尽量保留卵巢功能；坏死或疑似恶性时需个体化处理。",
+          "obstetrics-and-gynecology-shoulder-dystocia-during-delivery": "肩难产是胎头娩出后胎肩不能通过常规牵引娩出，属于产科急症。危险因素包括胎儿巨大、母体糖尿病、既往肩难产、产程延长、器械助产和肥胖，但多数病例不可预测。诊断通常在胎头回缩或轻柔牵引无效时作出。处理需要立即呼叫帮助、记录时间、避免过度牵拉胎头，并按流程采取McRoberts体位、耻骨上压、内旋转手法、娩出后臂或其他措施。目标是尽快安全解除嵌顿，减少新生儿缺氧、臂丛神经损伤、锁骨或肱骨骨折以及母体产道损伤和产后出血。团队演练和清晰沟通可改善反应。",
+          "obstetrics-and-gynecology-adenomyosis-and-dysmenorrhea": "子宫腺肌病是子宫内膜腺体和间质位于子宫肌层内，导致子宫增大、肌层肥厚和慢性炎症。患者常表现为进行性痛经、月经过多、慢性盆腔痛和不孕，也可无症状。查体可发现子宫弥漫性增大和压痛。经阴道超声和MRI可显示肌层不均、子宫壁增厚、肌层囊性灶或结合带增厚。治疗依据症状、年龄和生育要求选择NSAIDs、激素避孕药、孕激素、左炔诺孕酮宫内系统、GnRH类似物、保守手术或子宫切除。翻译时应注意将dysmenorrhea译为痛经，而非普通腹痛。",
+          "obstetrics-and-gynecology-group-b-streptococcus-in-pregnancy": "B族链球菌可定植于孕妇胃肠道和泌尿生殖道，并导致新生儿早发型感染。妊娠晚期筛查和产时抗生素预防可降低新生儿败血症、肺炎和脑膜炎风险。危险因素包括早产、胎膜破裂时间长、产时发热、既往新生儿GBS病史和妊娠期GBS菌尿。筛查通常在妊娠36至37周进行阴道直肠拭子培养。筛查阳性、GBS菌尿或既往受累新生儿者，分娩时需静脉青霉素或合适替代药物。剖宫产前未临产且胎膜未破者通常无需预防。新生儿管理取决于症状、孕周、母体治疗和感染风险。",
+          "pediatrics-bronchiolitis-in-infants": "婴儿毛细支气管炎是小气道病毒感染，常由呼吸道合胞病毒引起。患儿先有流涕、咳嗽和低热，随后出现喘鸣、呼吸急促、鼻翼扇动、胸壁凹陷或喂养困难。诊断主要依据临床表现，常规胸片和病毒检测通常不改变处理。治疗以支持为主，包括保持水化、清理鼻腔、必要时给氧和监测呼吸做功。支气管舒张剂、糖皮质激素和抗生素不应常规使用，除非存在其他明确指征。早产儿、年龄很小、基础心肺病或免疫低下者重症风险较高。",
+          "pediatrics-pediatric-asthma-and-airway-inflammation": "儿童哮喘是一种慢性气道炎症性疾病，表现为可变性气流受限和气道高反应性。症状包括反复喘息、咳嗽、胸闷和呼吸困难，常在夜间、运动、感染、过敏原或冷空气暴露后加重。诊断依据症状模式、诱因、家族或过敏史以及可逆性气流受限证据。治疗包括避免诱因、吸入糖皮质激素等控制药物、短效支气管舒张剂缓解症状、哮喘行动计划和吸入技术教育。急性发作需评估呼吸窘迫、血氧和说话能力，并及时给予支气管舒张剂、氧疗和必要时全身激素。长期管理应定期评估控制水平和生长情况。",
+          "pediatrics-neonatal-jaundice-and-hyperbilirubinemia": "新生儿黄疸由胆红素升高引起，多数为生理性，但过高的非结合胆红素可导致胆红素脑病和核黄疸。危险因素包括早产、溶血、母婴血型不合、G6PD缺乏、头颅血肿、喂养不足和黄疸出现过早。评估需结合出生小时龄、总胆红素水平、直接胆红素、体重变化、喂养和危险因素。治疗根据风险曲线选择加强喂养、光疗或换血。直接胆红素升高提示胆汁淤积，需要进一步评估胆道闭锁、感染、代谢病或内分泌疾病。出院后随访对预防重度高胆红素血症很重要。",
+          "pediatrics-acute-gastroenteritis-and-dehydration": "儿童急性胃肠炎常由病毒、细菌或寄生虫引起，表现为腹泻、呕吐、腹痛、发热和脱水。评估重点是脱水程度，包括精神状态、口渴、眼窝、泪液、黏膜、毛细血管再充盈、心率、尿量和皮肤弹性。多数病例不需常规抗生素，治疗以口服补液盐为核心，继续适龄饮食并避免不必要禁食。重度脱水、休克、持续呕吐或不能口服者需静脉补液。粪便检查用于血便、重症、免疫低下、旅行相关或暴发病例。预防包括手卫生、疫苗接种和安全饮食饮水。",
+          "pediatrics-congenital-heart-disease-and-cyanosis": "先天性心脏病可导致结构性心脏异常，其中部分表现为发绀。发绀提示动脉血氧饱和度降低，可能由右向左分流、肺血流减少或混合性循环引起。新生儿可出现青紫、喂养困难、呼吸急促、出汗、生长不良或心杂音。评估包括脉搏血氧筛查、四肢血压、体格检查、胸片、心电图和超声心动图。动脉导管依赖性病变需及时使用前列腺素E1维持导管开放，并转至专科中心。治疗取决于具体畸形，可包括药物稳定、导管介入、分期手术或根治手术。",
+          "pediatrics-kawasaki-disease-and-coronary-artery-risk": "川崎病是一种儿童急性血管炎，主要累及中小动脉，最重要并发症是冠状动脉瘤。典型表现为持续发热，伴结膜充血、口唇和口腔改变、皮疹、肢端改变和颈部淋巴结肿大。不完全川崎病在婴幼儿中更常见，需结合炎症指标和超声心动图判断。早期使用静脉注射免疫球蛋白和阿司匹林可降低冠脉病变风险。治疗后需根据冠状动脉情况进行心脏随访，必要时抗血小板或抗凝治疗。持续或复发发热提示IVIG抵抗，可考虑糖皮质激素或其他抗炎治疗。",
+          "pediatrics-pediatric-seizures-and-febrile-convulsions": "热性惊厥是幼儿发热时出现的惊厥，且无中枢神经系统感染、代谢紊乱或既往无热惊厥。单纯性热性惊厥为全身性、持续少于15分钟且24小时内不复发；复杂性惊厥则为局灶、时间长或反复。多数单纯热性惊厥预后良好，不需常规神经影像、脑电图或长期抗癫痫治疗。评估重点是寻找发热来源，并在颈强直、持续意识改变、瘀点、前囟隆起或中毒貌等情况下排除脑膜炎或脑炎。急性处理包括保护气道、侧卧、必要时测血糖，惊厥持续数分钟以上可用苯二氮䓬类。家长需了解复发风险、急救方法和何时就医。",
+          "pediatrics-nephrotic-syndrome-in-children": "儿童肾病综合征以大量蛋白尿、低白蛋白血症、水肿和常伴高脂血症为特征。微小病变病是幼儿最常见病因，通常对糖皮质激素敏感。水肿来自尿白蛋白丢失、血浆胶体渗透压下降、肾钠潴留和神经激素通路激活。患儿可有眼睑水肿、依赖性水肿、腹水、体重增加、泡沫尿或尿量减少。评估包括尿常规、尿蛋白肌酐比、血清白蛋白、肌酐、胆固醇、必要时补体和继发病因评估。并发症包括感染、血栓、低血容量、急性肾损伤和药物毒性。典型激素敏感病例可用激素、限盐、水肿管理、疫苗评估和感染预防；不典型者需考虑肾活检。",
+          "pediatrics-pediatric-iron-deficiency-anemia": "儿童缺铁性贫血是常见营养性疾病，源于摄入不足、需求增加、吸收障碍或慢性失血。婴儿、幼儿、青少年和限制性饮食儿童尤其易感。铁参与血红蛋白合成、髓鞘形成、免疫功能和神经发育。症状包括苍白、乏力、烦躁、喂养差、异食癖、心动过速、劳力性呼吸困难或注意力受损，轻症可无症状。实验室通常显示低血红蛋白、小细胞低色素、红细胞分布宽度增高、铁蛋白低和转铁蛋白饱和度低。治疗包括寻找病因、增加膳食铁、限制幼儿过量牛奶摄入，并给予口服铁和依从性指导。治疗有效后血红蛋白应升高，但需继续补足铁储备。",
+          "pediatrics-childhood-obesity-and-metabolic-health": "儿童肥胖是一种慢性疾病，受遗传易感、宫内因素、饮食、体力活动、睡眠、心理社会压力、药物和环境影响。它与胰岛素抵抗、血脂异常、高血压、代谢功能障碍相关脂肪性肝病、阻塞性睡眠呼吸暂停、骨科问题、性早熟、抑郁以及成年期肥胖持续相关。评估包括体质指数百分位、增长轨迹、家族史、饮食、活动、睡眠、屏幕时间、血压和合并症筛查。实验室可查血脂、血糖或糖化血红蛋白和肝酶。管理应以家庭为中心、避免污名化并符合发育阶段，结合营养咨询、减少含糖饮料和超加工食品、增加活动、保证睡眠、行为干预和治疗合并症。严重青少年肥胖可在专科监督下考虑药物或代谢手术。",
+          "pediatrics-type-1-diabetes-in-children": "儿童1型糖尿病是自身免疫性胰岛β细胞破坏导致绝对胰岛素缺乏。患儿可表现为多尿、多饮、体重下降、乏力、视物模糊、夜间遗尿，或以糖尿病酮症酸中毒起病，出现呕吐、腹痛、脱水、Kussmaul呼吸和意识改变。诊断依据伴症状的高血糖、糖化血红蛋白、血糖检测，并常用胰岛自身抗体辅助分型。管理需要终身胰岛素替代，可采用多次皮下注射或泵治疗，同时进行血糖监测或连续葡萄糖监测、碳水化合物计数、营养教育、运动规划和低血糖预防。家庭需学习病日规则、酮体检测、胰高糖素使用和学校照护计划。酮症酸中毒需谨慎补液、胰岛素输注、电解质监测并预防脑损伤。",
+          "pediatrics-pediatric-pneumonia": "儿童社区获得性肺炎是病毒、典型细菌、非典型细菌或混合病原体引起的肺实质感染。年龄、免疫接种、季节、暴露史和合并症影响可能病因。症状可包括发热、咳嗽、呼吸急促、胸痛、腹痛、喂养差、呻吟、鼻翼扇动、三凹征或低氧血症。呼吸急促是重要体征，但单一表现不能可靠区分病毒和细菌感染。门诊多依据临床诊断；重症、低氧、疑似并发症或诊断不明时行胸片。治疗包括支持护理、退热、补液、必要时氧疗，以及疑似细菌性肺炎时经验性抗生素。免疫接种儿童非复杂肺炎常用阿莫西林；住院指征包括呼吸窘迫、不能饮水、低氧、年龄小、严重合并症或随访不可靠。",
+          "pediatrics-sepsis-in-children": "儿童脓毒症是感染和异常宿主反应导致的危及生命的器官功能障碍。婴幼儿可能迅速恶化，早期体征可不典型。表现包括发热或低体温、心动过速、呼吸急促、灌注差、意识改变、毛细血管再充盈延长、脉搏弱、皮肤花斑、少尿、低血压或呼吸窘迫。常见来源包括肺炎、脑膜炎、尿路感染、腹腔感染、皮肤感染和导管相关血流感染。处理强调快速识别、可及时测乳酸、培养不应延误治疗、使用广谱抗菌药，并根据灌注和容量负荷风险进行液体复苏。初始复苏后休克仍持续需血管活性药。儿童低血压常为晚期体征，需结合年龄特异性生理判断。",
+          "pediatrics-meningitis-in-infants-and-children": "脑膜炎是细菌、病毒、真菌或非感染因素引起的脑膜炎症。细菌性脑膜炎是急症，延误治疗会增加死亡、听力损失、癫痫、脑积水和神经发育受损风险。症状随年龄不同，婴儿可有发热、喂养差、烦躁、嗜睡、前囟膨隆、呕吐、呼吸暂停或惊厥；较大儿童可有头痛、畏光、颈强直、意识改变和瘀点样皮疹。评估包括血培养、炎症指标、安全时腰穿行脑脊液分析，只有存在特定风险因素时才在腰穿前做神经影像。疑似细菌性脑膜炎应立即经验性抗生素覆盖年龄相关病原体，部分病例可加用糖皮质激素。病毒性多可自限，但单纯疱疹需抗病毒治疗。",
+          "pediatrics-acute-otitis-media": "急性中耳炎是儿童常见感染，通常继发于病毒性上呼吸道感染和咽鼓管功能障碍，表现为中耳炎症和积液。常见病原体包括肺炎链球菌、不可分型流感嗜血杆菌、卡他莫拉菌和呼吸道病毒。症状包括耳痛、发热、烦躁、睡眠差、听力下降、耳漏或喂养差。诊断需要急性症状并有鼓膜膨隆、中耳积液、活动度下降、红斑或穿孔流脓等耳镜证据。过度诊断会导致不必要抗生素使用，因此仔细查体很重要。镇痛是治疗核心。重症、年龄很小、特定年龄双侧感染或耳漏者建议立即抗生素，轻症且随访可靠者可观察。反复发作者需评估听力和危险因素，必要时考虑鼓膜置管。",
+          "pediatrics-urinary-tract-infection-in-children": "儿童尿路感染可累及膀胱或肾脏，反复肾盂肾炎或合并尿路异常时可导致肾瘢痕。婴儿可表现为发热、喂养差、呕吐、黄疸、烦躁或生长不良；较大儿童可诉尿痛、尿频、尿急、腹痛、腰痛或新发尿失禁。诊断需有脓尿和经合适采集尿标本证实的显著细菌生长。尿袋标本可筛查但不能确认培养。经验性抗生素需考虑年龄、病情严重度、当地耐药和口服耐受情况。发热或中毒貌婴儿可能需静脉治疗并评估菌血症。年轻儿童发热性尿感或反复病例后常用肾膀胱超声。复发时应考虑排尿功能障碍、便秘、膀胱输尿管反流和解剖梗阻。",
+          "pediatrics-henoch-schonlein-purpura": "过敏性紫癜又称IgA血管炎，是儿童最常见的小血管炎之一，常发生于上呼吸道感染后。其特征为无血小板减少的可触性紫癜、关节痛或关节炎、腹痛和肾受累。皮疹多见于下肢和臀部。胃肠表现可包括绞痛、呕吐、消化道出血或肠套叠。肾病变从镜下血尿和轻度蛋白尿到肾炎或肾病综合征表现不等。诊断通常依据临床，并结合尿常规、血压、肾功能、血常规和腹部并发症评估。多数病例自限，治疗以补液、镇痛和监测为主。糖皮质激素可缓解严重腹痛或关节症状，但不能可靠预防肾炎。长期随访重点是血压、尿检和蛋白尿。",
+          "pediatrics-neonatal-respiratory-distress-syndrome": "新生儿呼吸窘迫综合征由肺表面活性物质缺乏和肺结构不成熟引起，主要见于早产儿。表面活性物质不足使肺泡在呼气末塌陷，肺顺应性下降，呼吸做功增加并发生低氧血症。出生后不久出现呼吸急促、呻吟、鼻翼扇动、肋间凹陷、发绀和氧需求增加。早产、母亲糖尿病、未临产剖宫产、男性和围产期窒息增加风险。对有早产风险的孕妇给予产前糖皮质激素可促进胎肺成熟并减少并发症。诊断依据临床表现、血气、需氧情况和胸片低肺容量及弥漫网状颗粒影。治疗包括保温、温和通气、持续气道正压、氧浓度滴定、必要时补充表面活性物质，并预防气胸、支气管肺发育不良、感染和脑室内出血。",
+          "pediatrics-attention-deficit-hyperactivity-disorder": "注意缺陷多动障碍是一种神经发育障碍，表现为与发育水平不相称的注意缺陷、多动和冲动，并在多个环境中损害功能。症状包括注意维持困难、组织能力差、健忘、话多、坐立不安、打断他人和任务完成差。诊断需要全面临床评估，收集家长和教师信息，确认症状持续时间、起病年龄、功能损害，并排除睡眠障碍、焦虑、抑郁、学习障碍、听力问题、创伤或甲状腺疾病等解释。还需考虑对立违抗行为、抽动、自闭谱系障碍和物质使用风险等共病。治疗为多模式，包括家长训练、课堂支持、行为干预和药物。兴奋剂对核心症状证据充分，非兴奋剂适用于部分患者。监测包括食欲、睡眠、血压、心率、生长、情绪、药物滥用风险和学业社交进展。",
+          "pediatrics-pediatric-anaphylaxis": "儿童过敏反应是一种急性、可能危及生命的系统性超敏反应，涉及肥大细胞和嗜碱性粒细胞介质释放。常见诱因包括食物、昆虫叮咬、药物、乳胶和运动相关暴露。临床可表现为荨麻疹、血管性水肿、潮红、喘鸣、喉鸣、咳嗽、呕吐、腹痛、低血压、晕厥或幼儿突然行为改变。皮肤表现可缺如，因此诊断依赖识别暴露后快速出现的多系统受累或呼吸、心血管受损。大腿中外侧肌内注射肾上腺素是一线治疗，不应延误。其他处理包括气道评估、给氧、休克时静脉补液、支气管痉挛时吸入支气管舒张剂，并观察双相反应。抗组胺药和糖皮质激素可缓解部分症状，但不能替代肾上腺素。出院需进行诱因避免、肾上腺素自动注射器、书面行动计划和过敏专科转诊。"
+    });
+
+    function buildReferenceNote(article) {
+      return chineseReferenceMap[article.id] || `${chineseTitleMap[article.id] || article.englishTitle}：本段围绕该疾病或临床问题的病因、危险因素、典型表现、诊断评估、治疗原则和随访管理展开。翻译时应将英文中的并列医学信息按中文临床表达重新连接，准确处理“risk factors”“evaluation”“management”“complications”等核心术语，并保持原文医学含义不变。`;
+    }
+
+    const medicalTermGlossary = [
+      ["chronic kidney disease", "慢性肾脏病", "以肾结构或功能异常持续存在为特征，常缩写为 CKD。"],
+      ["proteinuria", "蛋白尿", "尿蛋白异常增多，是肾小球损伤和肾病进展的重要指标。"],
+      ["estimated glomerular filtration rate", "估算肾小球滤过率", "常缩写为 eGFR，用于评价肾功能分期。"],
+      ["albuminuria", "白蛋白尿", "尿白蛋白排泄增加，常用尿白蛋白肌酐比评估。"],
+      ["urine albumin-to-creatinine ratio", "尿白蛋白肌酐比", "常缩写为 UACR，用于定量白蛋白尿。"],
+      ["tubulointerstitial inflammation", "肾小管间质炎症", "慢性肾损伤进展中的重要病理过程。"],
+      ["renin-angiotensin system blockade", "肾素-血管紧张素系统阻滞", "通过 ACEI 或 ARB 等药物减少蛋白尿并保护肾脏。"],
+      ["sodium-glucose cotransporter 2 inhibitors", "钠-葡萄糖协同转运蛋白2抑制剂", "常缩写为 SGLT2 抑制剂，兼具降糖和心肾保护作用。"],
+      ["hypertension", "高血压", "以动脉血压持续升高为特征，是心脑肾疾病的重要危险因素。"],
+      ["systolic blood pressure", "收缩压", "心脏收缩期动脉压力，是老年高血压评估重点。"],
+      ["pulse pressure", "脉压", "收缩压与舒张压之差，老年动脉僵硬时常增宽。"],
+      ["orthostatic hypotension", "体位性低血压", "站立后血压下降，可导致头晕和跌倒。"],
+      ["acute coronary syndrome", "急性冠脉综合征", "冠状动脉急性缺血事件总称，包括不稳定心绞痛和心肌梗死。"],
+      ["atherosclerotic plaque", "动脉粥样硬化斑块", "冠脉事件中可破裂或糜烂并诱发血栓。"],
+      ["cardiac troponin", "心肌肌钙蛋白", "诊断心肌损伤和心肌梗死的关键标志物。"],
+      ["ST-segment elevation myocardial infarction", "ST段抬高型心肌梗死", "需尽快再灌注治疗的急性心肌梗死类型。"],
+      ["percutaneous coronary intervention", "经皮冠状动脉介入治疗", "常缩写为 PCI，用于开通狭窄或闭塞冠状动脉。"],
+      ["fibrinolytic therapy", "溶栓治疗", "无法及时介入时用于溶解冠脉血栓的再灌注治疗。"],
+      ["antiplatelet therapy", "抗血小板治疗", "抑制血小板聚集以减少动脉血栓形成。"],
+      ["anticoagulation", "抗凝治疗", "通过抑制凝血过程预防或治疗血栓形成。"],
+      ["type 2 diabetes mellitus", "2型糖尿病", "以胰岛素抵抗和β细胞功能下降为主要机制的代谢病。"],
+      ["insulin resistance", "胰岛素抵抗", "靶组织对胰岛素反应下降，是2型糖尿病核心机制。"],
+      ["glycated hemoglobin", "糖化血红蛋白", "常缩写为 HbA1c，反映近2至3个月平均血糖水平。"],
+      ["microvascular complications", "微血管并发症", "包括糖尿病视网膜病变、肾病和神经病变。"],
+      ["atherosclerotic cardiovascular disease", "动脉粥样硬化性心血管疾病", "常缩写为 ASCVD，是糖尿病重要并发风险。"],
+      ["glucagon-like peptide-1 receptor agonists", "胰高糖素样肽-1受体激动剂", "常缩写为 GLP-1RA，可降糖并带来心血管获益。"],
+      ["chronic obstructive pulmonary disease", "慢性阻塞性肺疾病", "常缩写为 COPD，以持续气流受限为特征。"],
+      ["acute exacerbation", "急性加重", "慢性病症状短期明显恶化，COPD 中尤常用。"],
+      ["sputum purulence", "脓性痰", "提示细菌感染可能性增加。"],
+      ["noninvasive ventilation", "无创通气", "通过面罩等方式提供通气支持，避免气管插管。"],
+      ["hypercapnic respiratory failure", "高碳酸血症性呼吸衰竭", "以二氧化碳潴留为主要特征的呼吸衰竭。"],
+      ["community-acquired pneumonia", "社区获得性肺炎", "在院外或入院早期获得的肺实质感染。"],
+      ["pulmonary parenchyma", "肺实质", "肺炎主要受累组织，包括肺泡和间质。"],
+      ["pleuritic chest pain", "胸膜性胸痛", "呼吸或咳嗽时加重的胸痛。"],
+      ["empiric antibiotics", "经验性抗生素治疗", "病原学明确前根据可能病原体启动的抗感染治疗。"],
+      ["rheumatoid arthritis", "类风湿关节炎", "慢性自身免疫性关节炎，以滑膜炎和骨侵蚀为特征。"],
+      ["synovial inflammation", "滑膜炎症", "类风湿关节炎导致关节破坏的核心病变。"],
+      ["anti-citrullinated protein antibodies", "抗瓜氨酸化蛋白抗体", "类风湿关节炎特异性较高的自身抗体。"],
+      ["disease-modifying antirheumatic drugs", "改善病情抗风湿药", "常缩写为 DMARDs，可延缓关节结构损害。"],
+      ["heart failure with preserved ejection fraction", "射血分数保留型心力衰竭", "心衰症状存在但左室射血分数未明显降低。"],
+      ["left ventricular ejection fraction", "左心室射血分数", "评估心脏收缩功能的重要指标。"],
+      ["natriuretic peptide", "利钠肽", "心力衰竭诊断和风险评估常用生物标志物。"],
+      ["cirrhosis", "肝硬化", "慢性肝损伤终末阶段，表现为纤维化和再生结节。"],
+      ["portal hypertension", "门静脉高压", "门静脉系统压力升高，可导致腹水和静脉曲张出血。"],
+      ["gastroesophageal varices", "胃食管静脉曲张", "门静脉高压导致的侧支静脉扩张，破裂可致大出血。"],
+      ["hepatic encephalopathy", "肝性脑病", "肝功能障碍导致的神经精神综合征。"],
+      ["sepsis", "脓毒症", "感染导致宿主反应失调并引起危及生命的器官功能障碍。"],
+      ["organ dysfunction", "器官功能障碍", "脓毒症诊断核心，提示感染已影响器官功能。"],
+      ["broad-spectrum antimicrobials", "广谱抗菌药物", "覆盖多类可能病原体的初始抗感染治疗。"],
+      ["source control", "感染源控制", "通过引流、清创、手术或移除装置控制感染灶。"],
+      ["atrial fibrillation", "心房颤动", "最常见持续性心律失常，可导致血栓栓塞。"],
+      ["left atrial appendage thrombus", "左心耳血栓", "房颤相关卒中的重要栓子来源。"],
+      ["direct oral anticoagulants", "直接口服抗凝药", "常缩写为 DOACs，用于非瓣膜性房颤抗凝。"],
+      ["iron deficiency anemia", "缺铁性贫血", "铁不足导致血红蛋白合成减少的贫血。"],
+      ["ferritin", "铁蛋白", "反映体内铁储备的重要指标。"],
+      ["transferrin saturation", "转铁蛋白饱和度", "评估可利用铁水平的指标。"],
+      ["inflammatory bowel disease", "炎症性肠病", "包括溃疡性结肠炎和克罗恩病。"],
+      ["ulcerative colitis", "溃疡性结肠炎", "主要累及结肠黏膜的炎症性肠病。"],
+      ["Crohn disease", "克罗恩病", "可累及全消化道、呈节段性和透壁性炎症的炎症性肠病。"],
+      ["fecal calprotectin", "粪钙卫蛋白", "反映肠道炎症活动的粪便标志物。"],
+      ["pulmonary embolism", "肺栓塞", "血栓阻塞肺动脉循环所致疾病。"],
+      ["deep vein thrombosis", "深静脉血栓形成", "肺栓塞最常见血栓来源。"],
+      ["D-dimer", "D-二聚体", "低风险患者排除静脉血栓栓塞常用检测。"],
+      ["computed tomographic pulmonary angiography", "CT肺动脉造影", "肺栓塞诊断常用影像检查。"],
+      ["acute kidney injury", "急性肾损伤", "肾功能短期内突然下降。"],
+      ["serum creatinine", "血清肌酐", "评估肾功能和急性肾损伤的重要指标。"],
+      ["rhabdomyolysis", "横纹肌溶解", "肌肉破坏可导致肌红蛋白尿和急性肾损伤。"],
+      ["acute ischemic stroke", "急性缺血性卒中", "脑血流急性中断导致的缺血性神经功能缺损。"],
+      ["reperfusion therapy", "再灌注治疗", "恢复缺血脑组织血流的治疗策略。"],
+      ["intravenous thrombolysis", "静脉溶栓", "符合时间窗患者的急性缺血性卒中治疗。"],
+      ["mechanical thrombectomy", "机械取栓", "通过血管内技术取出大血管血栓。"],
+      ["peptic ulcer disease", "消化性溃疡病", "胃或十二指肠黏膜溃疡性疾病。"],
+      ["Helicobacter pylori", "幽门螺杆菌", "消化性溃疡和胃癌的重要病因。"],
+      ["proton pump inhibitors", "质子泵抑制剂", "常用强效抑酸药物。"],
+      ["thyrotoxicosis", "甲状腺毒症", "甲状腺激素过量导致的临床状态。"],
+      ["Graves disease", "Graves病", "自身免疫性甲状腺功能亢进的常见原因。"],
+      ["thyroid-stimulating hormone", "促甲状腺激素", "常缩写为 TSH，是甲状腺功能评估核心指标。"],
+      ["gout", "痛风", "尿酸盐结晶沉积导致的炎症性关节炎。"],
+      ["monosodium urate crystals", "单钠尿酸盐结晶", "痛风急性炎症的病理基础。"],
+      ["hyperuricemia", "高尿酸血症", "血尿酸水平升高，是痛风重要危险因素。"],
+      ["tuberculosis", "结核病", "由结核分枝杆菌感染引起的慢性传染病。"],
+      ["Mycobacterium tuberculosis", "结核分枝杆菌", "结核病的病原体。"],
+      ["nucleic acid amplification testing", "核酸扩增检测", "用于快速检测结核分枝杆菌核酸。"],
+      ["acute appendicitis", "急性阑尾炎", "阑尾急性炎症，常由阑尾腔梗阻引起。"],
+      ["appendiceal lumen", "阑尾腔", "阑尾内部管腔，梗阻是阑尾炎关键机制。"],
+      ["cholecystitis", "胆囊炎", "胆囊炎症，急性者多与胆石梗阻有关。"],
+      ["laparoscopic cholecystectomy", "腹腔镜胆囊切除术", "有症状胆石症和急性胆囊炎常用手术。"],
+      ["colorectal cancer", "结直肠癌", "发生于结肠或直肠的恶性肿瘤。"],
+      ["damage control resuscitation", "损伤控制复苏", "创伤大出血中以止血复苏和纠正凝血障碍为核心的策略。"],
+      ["breast cancer", "乳腺癌", "乳腺上皮来源恶性肿瘤。"],
+      ["core needle biopsy", "粗针穿刺活检", "乳腺肿块病理诊断常用方法。"],
+      ["inguinal hernia", "腹股沟疝", "腹腔内容物经腹股沟区薄弱处突出。"],
+      ["acute pancreatitis", "急性胰腺炎", "胰腺急性炎症，可由胆石或酒精诱发。"],
+      ["thyroid nodules", "甲状腺结节", "甲状腺内局灶性异常结构。"],
+      ["postoperative ileus", "术后肠麻痹", "腹部手术后胃肠动力暂时抑制。"],
+      ["nasogastric decompression", "胃肠减压", "通过鼻胃管减轻胃肠道积气积液。"],
+      ["small bowel obstruction", "小肠梗阻", "小肠内容物通过受阻。"],
+      ["liver trauma", "肝外伤", "钝性或穿透性损伤导致的肝脏损伤。"],
+      ["nonoperative management", "非手术治疗", "在严密监测下不立即手术的治疗策略。"],
+      ["hemodynamically stable", "血流动力学稳定", "生命体征和循环状态相对稳定。"],
+      ["acute limb ischemia", "急性肢体缺血", "肢体动脉灌注突然下降并威胁肢体活力。"],
+      ["abdominal aortic aneurysm", "腹主动脉瘤", "腹主动脉局限性永久扩张。"],
+      ["diabetic foot infection", "糖尿病足感染", "糖尿病足溃疡基础上发生的软组织或骨感染。"],
+      ["debridement", "清创", "去除坏死或感染组织以控制感染并促进愈合。"],
+      ["esophageal cancer", "食管癌", "发生于食管上皮的恶性肿瘤。"],
+      ["dysphagia", "吞咽困难", "吞咽食物或液体困难，是食管癌典型症状。"],
+      ["venous thromboembolism", "静脉血栓栓塞", "包括深静脉血栓形成和肺栓塞。"],
+      ["gastric cancer", "胃癌", "胃黏膜上皮来源恶性肿瘤。"],
+      ["preeclampsia", "子痫前期", "妊娠中期后新发高血压伴蛋白尿或器官功能障碍。"],
+      ["gestational diabetes mellitus", "妊娠期糖尿病", "妊娠期间首次发现的糖代谢异常。"],
+      ["ectopic pregnancy", "异位妊娠", "受精卵着床于宫腔以外。"],
+      ["endometriosis", "子宫内膜异位症", "子宫内膜样组织位于宫腔以外。"],
+      ["uterine fibroids", "子宫肌瘤", "子宫肌层良性平滑肌肿瘤。"],
+      ["preterm labor", "早产临产", "足月前规律宫缩并伴宫颈改变。"],
+      ["antenatal corticosteroids", "产前糖皮质激素", "用于促进早产风险胎儿肺成熟。"],
+      ["cervical cancer", "宫颈癌", "宫颈上皮来源恶性肿瘤，多与高危 HPV 持续感染相关。"],
+      ["human papillomavirus", "人乳头瘤病毒", "常缩写为 HPV，高危型与宫颈癌密切相关。"],
+      ["polycystic ovary syndrome", "多囊卵巢综合征", "以排卵障碍、高雄激素和多囊卵巢形态为特征的内分泌疾病。"],
+      ["placenta previa", "前置胎盘", "胎盘部分或完全覆盖宫颈内口。"],
+      ["pelvic inflammatory disease", "盆腔炎性疾病", "女性上生殖道上行感染性疾病。"],
+      ["postpartum hemorrhage", "产后出血", "分娩后出血过多，是重要产科急症。"],
+      ["premature rupture of membranes", "胎膜早破", "临产前胎膜破裂。"],
+      ["ovarian cancer", "卵巢癌", "卵巢来源恶性肿瘤。"],
+      ["menopause", "绝经", "卵巢功能衰退导致月经永久停止。"],
+      ["infertility", "不孕症", "规律未避孕性生活一定时间后未能妊娠。"],
+      ["postpartum depression", "产后抑郁", "分娩后发生的抑郁障碍。"],
+      ["ovarian torsion", "卵巢扭转", "卵巢及血管蒂旋转导致血供受阻。"],
+      ["shoulder dystocia", "肩难产", "胎头娩出后胎肩不能顺利娩出。"],
+      ["adenomyosis", "子宫腺肌病", "子宫内膜腺体和间质位于子宫肌层内。"],
+      ["dysmenorrhea", "痛经", "月经期或经前后出现的下腹疼痛。"],
+      ["group B streptococcus", "B族链球菌", "可导致新生儿早发型感染的重要围产期病原体。"],
+      ["bronchiolitis", "毛细支气管炎", "婴儿小气道病毒感染，常由 RSV 引起。"],
+      ["respiratory syncytial virus", "呼吸道合胞病毒", "常缩写为 RSV，是婴儿毛细支气管炎常见病原体。"],
+      ["pediatric asthma", "儿童哮喘", "儿童慢性气道炎症和可变气流受限疾病。"],
+      ["neonatal jaundice", "新生儿黄疸", "新生儿胆红素升高导致皮肤巩膜黄染。"],
+      ["hyperbilirubinemia", "高胆红素血症", "血胆红素水平升高，过高可致胆红素脑病。"],
+      ["acute gastroenteritis", "急性胃肠炎", "胃肠道急性感染或炎症，常表现为腹泻和呕吐。"],
+      ["dehydration", "脱水", "体液丢失超过摄入，儿童胃肠炎需重点评估。"],
+      ["congenital heart disease", "先天性心脏病", "出生时存在的心脏结构异常。"],
+      ["cyanosis", "发绀", "血氧饱和度降低导致皮肤黏膜青紫。"],
+      ["Kawasaki disease", "川崎病", "儿童急性血管炎，可累及冠状动脉。"],
+      ["coronary artery aneurysm", "冠状动脉瘤", "川崎病重要并发症之一。"],
+      ["febrile seizures", "热性惊厥", "儿童发热时发生且无中枢神经感染证据的惊厥。"],
+      ["nephrotic syndrome", "肾病综合征", "大量蛋白尿、低白蛋白血症和水肿为主要特征。"],
+      ["type 1 diabetes", "1型糖尿病", "自身免疫性β细胞破坏导致绝对胰岛素缺乏。"],
+      ["pediatric pneumonia", "儿童肺炎", "儿童肺实质感染。"],
+      ["pediatric sepsis", "儿童脓毒症", "儿童感染导致的危及生命的器官功能障碍。"],
+      ["meningitis", "脑膜炎", "脑膜炎症，可由细菌、病毒等引起。"],
+      ["acute otitis media", "急性中耳炎", "儿童常见中耳急性感染。"],
+      ["urinary tract infection", "尿路感染", "泌尿系统细菌感染，可累及膀胱或肾脏。"],
+      ["Henoch-Schonlein purpura", "过敏性紫癜", "又称 IgA 血管炎，儿童常见小血管炎。"],
+      ["neonatal respiratory distress syndrome", "新生儿呼吸窘迫综合征", "早产儿表面活性物质缺乏导致的呼吸窘迫。"],
+      ["attention-deficit hyperactivity disorder", "注意缺陷多动障碍", "常缩写为 ADHD，表现为注意缺陷、多动和冲动。"],
+      ["anaphylaxis", "过敏反应", "急性、可能危及生命的系统性超敏反应。"],
+      ["intramuscular epinephrine", "肌内注射肾上腺素", "过敏反应的一线急救治疗。"]
+    ].map(([en, zh, note]) => ({ en, zh, note }));
+
+    function buildTermHints(article) {
+      const haystack = `${article.englishTitle} ${article.englishText}`.toLowerCase();
+      const matchedTerms = medicalTermGlossary
+        .map((term, index) => ({ ...term, index, position: haystack.indexOf(term.en.toLowerCase()) }))
+        .filter((term) => term.position !== -1)
+        .sort((a, b) => a.position - b.position || b.en.length - a.en.length)
+        .filter((term, index, terms) => {
+          return terms.findIndex((item) => item.en.toLowerCase() === term.en.toLowerCase()) === index;
+        });
+      return matchedTerms.slice(0, 4);
+    }
+
+    const articles = literatureSegments.map((segment) => {
+      const article = {
+        ...segment,
+        title: `${chineseTitleMap[segment.id] || segment.englishTitle} / ${segment.englishTitle}`,
+        chineseTitle: chineseTitleMap[segment.id] || segment.chineseTitle,
+        disease: segment.category,
+        chapter: segment.sourceCategory,
+        referenceTranslation: '',
+        terms: [],
+        tip: '新版文献库按大类组织。翻译时先抓住主题句，再处理并列风险因素、检查项目和治疗措施。'
+      };
+      article.referenceTranslation = buildReferenceNote(article);
+      article.terms = buildTermHints(article);
+      return article;
+    });
+
+    const storageKey = "medicalTranslationPractice.v1";
+    const draftKey = "medicalTranslationDrafts.v1";
+
+    const state = {
+      currentId: articles[0].id,
+      filter: "全部",
+      searchTerm: "",
+      feedbackVisible: false,
+      records: loadJson(storageKey, []),
+      drafts: loadJson(draftKey, {})
+    };
+
+    const els = {
+      completedCount: document.getElementById("completedCount"),
+      totalCount: document.getElementById("totalCount"),
+      wordCount: document.getElementById("wordCount"),
+      diseaseFilter: document.getElementById("diseaseFilter"),
+      searchInput: document.getElementById("searchInput"),
+      searchResults: document.getElementById("searchResults"),
+      articleSelect: document.getElementById("articleSelect"),
+      randomBtn: document.getElementById("randomBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      articleTitle: document.getElementById("articleTitle"),
+      metaRow: document.getElementById("metaRow"),
+      englishText: document.getElementById("englishText"),
+      toggleReferenceBtn: document.getElementById("toggleReferenceBtn"),
+      translationInput: document.getElementById("translationInput"),
+      savedStatus: document.getElementById("savedStatus"),
+      submitBtn: document.getElementById("submitBtn"),
+      saveBtn: document.getElementById("saveBtn"),
+      resultBanner: document.getElementById("resultBanner"),
+      successToast: document.getElementById("successToast"),
+      toastTitle: document.getElementById("toastTitle"),
+      toastMessage: document.getElementById("toastMessage"),
+      feedback: document.getElementById("feedback"),
+      referenceTranslation: document.getElementById("referenceTranslation"),
+      terms: document.getElementById("terms"),
+      studyTip: document.getElementById("studyTip"),
+      selfRate: document.getElementById("selfRate"),
+      feedbackNote: document.getElementById("feedbackNote"),
+      historyList: document.getElementById("historyList")
+    };
+
+    let toastTimer = null;
+    let scrollTimer = null;
+
+    function loadJson(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function saveJson(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function getCurrentArticle() {
+      return articles.find((article) => article.id === state.currentId) || articles[0];
+    }
+
+    function getFilteredArticles() {
+      return articles.filter((article) => {
+        const categoryMatched = state.filter === "全部" || article.category === state.filter;
+        const keyword = state.searchTerm.trim().toLowerCase();
+        const keywordMatched = !keyword || [
+          article.chineseTitle,
+          article.englishTitle,
+          article.disease,
+          article.category,
+          article.chapter
+        ].some((text) => text.toLowerCase().includes(keyword));
+        return categoryMatched && keywordMatched;
+      });
+    }
+
+    function countWords(text) {
+      return text.trim().split(/\s+/).filter(Boolean).length;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => {
+        return {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        }[char];
+      });
+    }
+
+    function buildOptions() {
+      const categories = Array.from(new Set(articles.map((article) => article.category)));
+      const orderedCategories = categoryOrder.filter((category) => category === "全部" || categories.includes(category));
+      els.diseaseFilter.innerHTML = orderedCategories.map((category) => {
+        return `<option value="${category}">${category}</option>`;
+      }).join("");
+      els.diseaseFilter.value = state.filter;
+      updateArticleOptions();
+    }
+
+    function updateArticleOptions() {
+      const filtered = getFilteredArticles();
+      renderSearchResults(filtered);
+      if (!filtered.length) {
+        els.articleSelect.innerHTML = '<option value="">无匹配文献</option>';
+        els.articleSelect.value = "";
+        return filtered;
+      }
+      if (!filtered.some((article) => article.id === state.currentId)) {
+        state.currentId = filtered[0].id;
+      }
+      els.articleSelect.innerHTML = filtered.map((article) => {
+        return `<option value="${article.id}">${article.chineseTitle}</option>`;
+      }).join("");
+      els.articleSelect.value = state.currentId;
+      return filtered;
+    }
+
+    function renderSearchResults(filtered) {
+      const keyword = state.searchTerm.trim();
+      if (!keyword) {
+        els.searchResults.classList.remove("visible");
+        els.searchResults.innerHTML = "";
+        return;
+      }
+
+      els.searchResults.classList.add("visible");
+      if (!filtered.length) {
+        els.searchResults.innerHTML = '<div class="search-empty">无搜索结果</div>';
+        return;
+      }
+
+      els.searchResults.innerHTML = filtered.slice(0, 8).map((article) => {
+        return `<button type="button" class="search-result" data-id="${article.id}"><strong>${escapeHtml(article.chineseTitle)}</strong><span>${escapeHtml(article.englishTitle)} · ${escapeHtml(article.disease)}</span></button>`;
+      }).join("");
+    }
+
+    function renderArticle() {
+      const article = getCurrentArticle();
+      els.articleTitle.textContent = article.title;
+      els.englishText.textContent = article.englishText;
+      els.wordCount.textContent = countWords(article.englishText);
+      els.metaRow.innerHTML = [
+        `<span class="chip accent">${article.disease}</span>`,
+        `<span class="chip">${article.difficulty}</span>`
+      ].join("");
+
+      els.translationInput.value = state.drafts[article.id] || "";
+      els.savedStatus.textContent = state.drafts[article.id] ? "已载入草稿" : "未保存";
+      els.resultBanner.classList.remove("visible");
+      els.resultBanner.textContent = "";
+      renderFeedback(false);
+      updateStats();
+    }
+
+    function renderFeedback(show) {
+      state.feedbackVisible = show;
+      const article = getCurrentArticle();
+      els.feedback.classList.toggle("visible", show);
+      els.toggleReferenceBtn.textContent = show ? "隐藏参考" : "查看参考";
+      if (!show) {
+        return;
+      }
+
+      els.referenceTranslation.textContent = article.referenceTranslation;
+      els.terms.innerHTML = article.terms.map((term) => {
+        return `<div class="term"><strong>${term.en}</strong> <span>${term.zh}</span><br>${term.note}</div>`;
+      }).join("");
+      els.studyTip.textContent = article.tip;
+      els.feedbackNote.textContent = "选择自评后，本次练习会写入本地记录。";
+      Array.from(els.selfRate.querySelectorAll("button")).forEach((button) => {
+        button.classList.remove("selected");
+      });
+    }
+
+    function updateStats() {
+      const completed = new Set(state.records.map((record) => record.articleId)).size;
+      els.completedCount.textContent = completed;
+      els.totalCount.textContent = articles.length;
+    }
+
+    function saveDraft() {
+      const article = getCurrentArticle();
+      const value = els.translationInput.value.trim();
+      if (value) {
+        state.drafts[article.id] = value;
+        els.savedStatus.textContent = "草稿已保存";
+      } else {
+        delete state.drafts[article.id];
+        els.savedStatus.textContent = "未保存";
+      }
+      if (!saveJson(draftKey, state.drafts)) {
+        els.savedStatus.textContent = "本地保存受限";
+      }
+    }
+
+    function addRecord(rate) {
+      const article = getCurrentArticle();
+      const record = {
+        articleId: article.id,
+        title: article.title,
+        disease: article.disease,
+        rate,
+        translatedChars: els.translationInput.value.trim().length,
+        finishedAt: new Date().toISOString()
+      };
+      state.records = [record, ...state.records.filter((item) => item.articleId !== article.id)].slice(0, 8);
+      saveJson(storageKey, state.records);
+      renderHistory();
+      updateStats();
+      els.feedbackNote.textContent = "已保存本次练习记录。";
+    }
+
+    function renderHistory() {
+      if (!state.records.length) {
+        els.historyList.innerHTML = '<p class="empty-state">还没有练习记录。完成一次自评后会显示在这里。</p>';
+        return;
+      }
+
+      els.historyList.innerHTML = state.records.map((record) => {
+        const date = new Date(record.finishedAt);
+        const dateText = date.toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+        return `<div class="history-item"><span><strong>${record.title}</strong> · ${record.disease}</span><span>${rateText(record.rate)} · ${dateText}</span></div>`;
+      }).join("");
+    }
+
+    function rateText(rate) {
+      return {
+        1: "需重练",
+        2: "基本理解",
+        3: "较流畅",
+        4: "可复述"
+      }[rate] || "已完成";
+    }
+
+    function showToast(title, message = "") {
+      clearTimeout(toastTimer);
+      els.toastTitle.textContent = title;
+      els.toastMessage.textContent = message;
+      els.toastMessage.hidden = !message;
+      els.successToast.classList.add("visible");
+      toastTimer = setTimeout(() => {
+        els.successToast.classList.remove("visible");
+      }, 1000);
+    }
+
+    function scrollToFeedbackAfterToast() {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        els.feedback.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 850);
+    }
+
+    function chooseRandomArticle() {
+      const filtered = getFilteredArticles();
+      if (!filtered.length) {
+        return;
+      }
+      const candidates = filtered.length > 1 ? filtered.filter((article) => article.id !== state.currentId) : filtered;
+      const next = candidates[Math.floor(Math.random() * candidates.length)];
+      state.currentId = next.id;
+      els.articleSelect.value = state.currentId;
+      renderArticle();
+    }
+
+    els.diseaseFilter.addEventListener("change", () => {
+      state.filter = els.diseaseFilter.value;
+      const filtered = updateArticleOptions();
+      if (filtered.length) {
+        renderArticle();
+      }
+    });
+
+    els.searchInput.addEventListener("input", () => {
+      state.searchTerm = els.searchInput.value;
+      const filtered = updateArticleOptions();
+      if (filtered.length) {
+        renderArticle();
+      }
+    });
+
+    els.searchInput.addEventListener("focus", () => {
+      renderSearchResults(getFilteredArticles());
+    });
+
+    els.searchInput.addEventListener("blur", () => {
+      setTimeout(() => {
+        els.searchResults.classList.remove("visible");
+      }, 120);
+    });
+
+    els.searchResults.addEventListener("mousedown", (event) => {
+      const result = event.target.closest(".search-result");
+      if (!result) {
+        return;
+      }
+      event.preventDefault();
+      const article = articles.find((item) => item.id === result.dataset.id);
+      if (!article) {
+        return;
+      }
+      state.currentId = article.id;
+      state.searchTerm = article.chineseTitle;
+      els.searchInput.value = article.chineseTitle;
+      updateArticleOptions();
+      els.searchResults.classList.remove("visible");
+      renderArticle();
+    });
+
+    els.articleSelect.addEventListener("change", () => {
+      if (!els.articleSelect.value) {
+        return;
+      }
+      state.currentId = els.articleSelect.value;
+      renderArticle();
+    });
+
+    els.randomBtn.addEventListener("click", chooseRandomArticle);
+
+    els.resetBtn.addEventListener("click", () => {
+      const article = getCurrentArticle();
+      delete state.drafts[article.id];
+      saveJson(draftKey, state.drafts);
+      state.filter = "全部";
+      state.searchTerm = "";
+      state.currentId = articles[0].id;
+      els.diseaseFilter.value = state.filter;
+      els.searchInput.value = "";
+      els.searchResults.classList.remove("visible");
+      els.searchResults.innerHTML = "";
+      updateArticleOptions();
+      renderArticle();
+      els.translationInput.value = "";
+      els.savedStatus.textContent = "未保存";
+      showToast("已清空输入");
+    });
+
+    els.saveBtn.addEventListener("click", saveDraft);
+
+    els.submitBtn.addEventListener("click", () => {
+      saveDraft();
+      renderFeedback(true);
+      els.resultBanner.textContent = "参考译文已展开，请向下查看中文翻译对照、重点术语和学习提示。";
+      els.resultBanner.classList.add("visible");
+      showToast("提交成功", "正在打开中文翻译对照");
+      scrollToFeedbackAfterToast();
+    });
+
+    els.toggleReferenceBtn.addEventListener("click", () => {
+      renderFeedback(!state.feedbackVisible);
+    });
+
+    els.translationInput.addEventListener("input", () => {
+      els.savedStatus.textContent = "未保存更改";
+    });
+
+    els.selfRate.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-rate]");
+      if (!button) {
+        return;
+      }
+      Array.from(els.selfRate.querySelectorAll("button")).forEach((item) => item.classList.remove("selected"));
+      button.classList.add("selected");
+      addRecord(Number(button.dataset.rate));
+    });
+
+    buildOptions();
+    renderArticle();
+    renderHistory();
+  </script>
+  <script src="main.js"></script>
+</body>
+</html>
